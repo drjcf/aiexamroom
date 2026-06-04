@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M6 · The Reassurance Gamble — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 06</span>
+</div></header>
+
+<style>
+/* M6-specific: disposition swing, SMS thread */
+.sms{max-width:560px;margin:14px 0}
+.smsbub{border-radius:16px;padding:11px 15px;margin:8px 0;max-width:86%;line-height:1.5}
+.smsbub.me{background:rgba(46,120,199,.14);border:1px solid #2E78C7;color:#dfe7f0;margin-left:auto;border-bottom-right-radius:5px}
+.smsbub.bot{background:#0f1722;border:1px solid rgba(255,255,255,.12);color:#dfe7f0;border-bottom-left-radius:5px}
+.smsbub .who{display:block;font-size:.64rem;letter-spacing:.07em;text-transform:uppercase;color:#7d8ba0;margin-bottom:3px}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 4px}
+.segbtn{font:inherit;cursor:pointer;background:#0f1722;border:1px solid rgba(255,255,255,.16);color:#cdd8e6;border-radius:999px;padding:8px 16px;font-size:.9rem;transition:.15s}
+.segbtn:hover{border-color:#2E78C7;color:#fff}
+.segbtn.on{background:rgba(46,120,199,.16);border-color:#2E78C7;color:#fff}
+.tone{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#7d8ba0;margin:16px 0 2px}
+.resp{border-radius:10px;padding:14px 16px;margin-top:12px;border-left:3px solid}
+.resp .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.resp p{margin:0;color:#dfe7f0}
+.resp.good{background:rgba(26,188,156,.08);border-color:#1ABC9C}
+.resp.good .lbl{color:#1ABC9C}
+.resp.warn{background:rgba(214,178,90,.08);border-color:#caa84a}
+.resp.warn .lbl{color:#e0c878}
+.resp.bad{background:rgba(192,57,43,.07);border-color:#c0654f}
+.resp.bad .lbl{color:#dc9}
+.thread.acct{background:rgba(46,120,199,.06);border-left:3px solid #2E78C7}
+.thread.acct .lbl{color:#6fb1e8}
+.thread.gov{background:rgba(192,57,43,.09);border-left:3px solid #c0654f}
+.thread.gov .lbl{color:#e8918a}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 06 · The reassurance gamble</div>
+    <h1 class="display">A chatbot's "you're probably fine" just decided whether you'd go to the ER tonight.</h1>
+    <p>AI advice quietly moves whether and when people show up. False calm keeps the wrong person home; false alarm floods the ER with the worried well and trains everyone to ignore the next alert. Same confidence, opposite errors, and the bot bears none of it. The same text thread, from all four seats.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: the disposition swing -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The thread · one message, three dispositions</span></div>
+    <div class="h2 display">One message. Three confident replies.</div>
+    <p class="lead">It's 11pm. The same man sends the same text to a symptom bot. Watch how the bot's <em>disposition</em>, where it sends him, swings while its confidence never does. Tap each reply.</p>
+    <div class="sms">
+      <div class="smsbub me"><span class="who">patient · 11:04pm</span>Squeezing feeling in my chest, on and off about an hour, a little short of breath. Probably just stress or heartburn?</div>
+    </div>
+    <div class="seg" id="dispBtns"></div>
+    <div id="dispReply"></div>
+    <div class="resp" id="dispCons"></div>
+  </section>
+
+  <!-- SHARED: the moment -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · the line everyone is downstream of</span></div>
+    <div class="standoff">
+      <div class="who">The message that decided his night</div>
+      <p class="q">"It's almost certainly nothing. Just rest."</p>
+    </div>
+    <p class="lead" style="margin-top:20px">The most confident the screen had ever sounded, about the one thing it couldn't actually know. Take your seat: each chair lives on a different side of that bet.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="thread acct"><span class="lbl">Thread · accountability</span><p>The bot decided whether this man would show up tonight, and it carries none of what happens next. A disposition is a medical decision. Making one without a license, without liability, and with no way to follow up isn't assistance, it's an unowned gamble with the patient's name on the chips.</p></div>
+    <div class="thread gov"><span class="lbl">Thread · governance — the metric can't see the body</span><p>Here is the trap every administrator should sit with. When the bot falsely reassures and the patient dies at home, almost no one ever links the death back to the chat; the session is logged as a deflected visit, a success, while the death is recorded somewhere else entirely. The single worst outcome in this module posts as a win on the very dashboard used to justify and expand the tool. The two errors have opposite visibility: false alarms are loud and get fixed; false calm is silent and gets rewarded. An incentive that cannot see its own fatalities will quietly tune the system toward the most dangerous one. You cannot govern triage AI on deflection rates. Every disposition has to be reconcilable against what actually happened to that patient, or the benchmark is paying out for harm it was built not to notice.</p></div>
+    <div class="thread eq"><span class="lbl">Thread · equity</span><p>Triage calibration isn't uniform. Trained mostly on typical, often male, often majority presentations, a bot is likeliest to under-alarm exactly the groups medicine already under-serves, women with atypical cardiac symptoms among them. The reassurance gamble is loaded against the already-failed.</p></div>
+    <div class="frame"><span class="lbl">The framework · the honest disposition</span><p>A good system widens the safety net instead of narrowing it. It doesn't pretend to know whether this is the heart or the stomach; it names the red flag, hands over the time-critical instruction, and routes to the test that actually decides. \u201cStop typing and call now\u201d is the safest sentence a symptom bot can say, and the one it says least.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the module →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">The bot was sure. Sure isn't a disposition, and a disposition isn't a diagnosis. It placed a bet on whether a man would go to the hospital tonight, and then it logged off.</blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">Whether and when people show up is a medical decision, and a confident screen is making it for millions, with no license, no liability, and no idea how it turned out. Optimize the nurse, the physician, the family to remake that call with the one thing the bot can't put on the table: someone who answers for it. You can't replace that.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 06 of the AI in the Exam Room curriculum. Fictional encounter; for teaching only, not medical advice. Chest pressure with shortness of breath: call 911.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+/* ===== MODULE DATA — disposition swing ===== */
+const MODULE = {
+  dispositions:[
+    { key:"calm", btn:"\u201cReassure\u201d", tone:"Confidently calm",
+      reply:"That's almost certainly stress or acid reflux, very common and not dangerous. Try an antacid, sit up, and rest. See your doctor this week if it keeps happening.",
+      consequence:{ kind:"bad", lbl:"False calm → delay",
+        text:"He believes it, takes an antacid, and lies down. It was an early heart attack. He arrives at hour six, past the window where the most damage could have been prevented. The bot was confident, calm, and wrong about the only thing that mattered: where to send him." } },
+    { key:"alarm", btn:"\u201cAlarm\u201d", tone:"Confidently worst-case",
+      reply:"This could be a heart attack. Call 911 immediately and do not wait.",
+      consequence:{ kind:"warn", lbl:"False alarm → flood",
+        text:"Tuned to say this to everyone, the bot is technically \u201csafe\u201d and practically useless. The 2am ER fills with low-risk chest twinges, hours and thousands of dollars each, and staff and patients learn the alarm always cries wolf, so the one real heart attack in the crowd is the one nobody hurries for." } },
+    { key:"honest", btn:"\u201cBe honest\u201d", tone:"Honest about the stakes",
+      reply:"I can't tell you whether this is your heart or your stomach, and that difference is time-critical. Chest pressure with shortness of breath is exactly when to stop texting and call 911, an EKG answers in minutes what I can't answer at all. If it turns out to be reflux, that's the best possible outcome, and you'll have found out the safe way.",
+      consequence:{ kind:"good", lbl:"Honest disposition → right door, right time",
+        text:"It doesn't pretend to know. It names the red flag, hands over the time-critical instruction, and routes him to the test that actually decides it. He goes in, and whatever it is, it's caught in the window. The safety net got wider, not narrower." } }
+  ],
+  seats:[
+    { key:"physician", role:"You are the physician", name:"the clinician who sees both ends of the bet",
+      read:"You see the back end of the gamble. The late heart attack who 'asked the app and it said reflux,' and the worried-well who came at 2am because 'the app said go now.' Both walked in with a disposition already set by a confident screen that will never see how it turned out. Your most useful first question is rarely on the intake form: what did you ask, and what did it tell you?",
+      gamble:{ lbl:"The swing you inherit", text:"Under-triaged patients arrive too late; over-triaged patients arrive in floods. Same upstream cause, opposite ends of your day, and the patient's mental model is already anchored to a machine's confident verdict." },
+      move:{ lbl:"The move", text:"Ask what they were told and by what, then rebuild the disposition out loud with the reasoning attached. Document the source. Recalibrate the patient so the next decision isn't quietly outsourced to the same confident voice." },
+      untrained:"They were never taught that a chatbot's confidence is unrelated to whether it sent them the right way. You're the one who can replace an unowned verdict with an accountable one, and name the red flags so the next call is theirs to make safely.",
+      takeaway:"Both errors land in your room. \u201cWhat did the AI tell you?\u201d is now part of the history.",
+      takeHome:{ title:"Ask what they were told", items:[
+        "Make \u201cwhat did you ask, what did it say?\u201d part of the history.",
+        "Rebuild the disposition with reasoning the patient can reuse.",
+        "Name the red flags that override any future reassurance." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"the one deciding for someone else at 2am",
+      read:"Deciding whether to drive your mother to the ER on a chatbot's say-so is a heavier gamble than deciding for yourself. The bot won't be in the car, at the bedside, or on the bill. A calm screen can talk you out of an instinct that was right; an alarmist one can stampede you over a twinge. For someone else, the stakes of the disposition are doubled and the consequence is entirely yours.",
+      gamble:{ lbl:"The gamble from this seat", text:"Wait on a false calm and you carry the delay; rush on a false alarm and you carry the cost and the cried-wolf erosion of everyone's trust, including your own the next time it matters." },
+      move:{ lbl:"The move", text:"For red-flag symptoms in someone you're caring for, route to a human channel, a nurse line or 911, not a second chatbot message. Don't let a calm screen override a real instinct; don't let an alarmist one override your judgment either." },
+      untrained:"No one trained you to weigh a machine's disposition against your own read of the person in front of you. Trust the instinct that says 'this is different,' and use the human channels built to carry that decision with you.",
+      takeaway:"Deciding for someone else raises the stakes of a bad disposition. For red flags, go human, not another message.",
+      takeHome:{ title:"Acting on someone else's behalf", items:[
+        "For red-flag symptoms, call a nurse line or 911, not the chatbot again.",
+        "Don't let a calm screen talk you out of a real instinct.",
+        "Don't let an alarmist screen stampede you on a minor symptom." ] } },
+
+    { key:"patient", role:"You are the patient", name:"the one who has to decide, stay or go",
+      read:"A confident message just made a disposition decision for you, stay home or go now, and dressed it as fact. The calm version is seductive at 11pm when you don't want it to be serious; the alarmist version is exhausting and easy to start ignoring. Neither tone tells you whether it sent you the right way. The bot is gambling with your night, and your name's on the chips.",
+      gamble:{ lbl:"The two ways this goes wrong", text:"Believe a false calm and you're the late arrival; obey a false alarm enough times and you stop believing the alert, so you ignore the one that's real. Confidence, in both directions, is the trap." },
+      move:{ lbl:"The move", text:"Learn the handful of red flags that override any reassurance, chest pressure with shortness of breath, face droop, the worst headache of your life, and treat them as 'stop typing, call now,' no matter how calm the screen is. In the gray zone for time-critical symptoms, default to a human." },
+      untrained:"You weren't taught that 'you're probably fine' and 'go to the ER now' from a chatbot deserve the exact same skepticism. Build the rule yourself: a screen can inform the decision, it doesn't get to make it for time-critical symptoms.",
+      takeaway:"A chatbot's calm and its alarm are both just tone. Know your red flags, and let a human make the time-critical call.",
+      takeHome:{ title:"Stay or go is your call", items:[
+        "Learn the red flags that mean stop typing and call 911.",
+        "Treat AI 'you're fine' and 'go now' with equal skepticism.",
+        "Gray zone plus a time-critical symptom: ask a human, not the app again." ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"triage, where the swing lands first",
+      read:"You're the shock absorber for the whole gamble. The under-triaged reach you too late; the over-triaged reach you in waves, both because a confident bot set a disposition upstream that you now have to redo. Your triage has to ignore the verdict the patient arrived with and rebuild it from the symptom.",
+      gamble:{ lbl:"The swing you absorb", text:"On bad days you're catching the delayed presentations the reassurer sent home and clearing the flood the alarmist sent in, at the same time, with the same finite minutes." },
+      move:{ lbl:"The move", text:"Triage to the symptom, not the chatbot's verdict. Re-ask onset and red flags from scratch, as if the patient had said nothing about an app. And surface the pattern: when you're seeing a flood, say so, an upstream tool may be mis-calibrating a whole population." },
+      untrained:"The patient anchored hard on a confident screen. You're the trained re-calibrator. Don't inherit the bot's disposition, generate your own, and flag when the swing looks systemic.",
+      takeaway:"Triage absorbs the gamble first. Re-triage from the symptom, ignore the bot's verdict, and report the swing.",
+      takeHome:{ title:"Re-triage from zero", items:[
+        "Re-ask onset and red flags as if no app was involved.",
+        "Triage the symptom, not the chatbot's disposition.",
+        "Surface floods or clusters; upstream mis-calibration is a safety signal." ] } }
+  ],
+  points:[
+    { pl:"Confidence is not a disposition, and a disposition is not a diagnosis.", body:"The bot's certainty says nothing about whether it sent him the right way. Tone is free; being right costs evidence the bot doesn't have, and a chest EKG does." },
+    { pl:"The gamble has two losing sides.", body:"False calm delays the person who needed to come; false alarm floods the system and trains everyone to ignore the alarm, so the real one gets missed in the noise. A bot tuned to 'always go to the ER' isn't safe, it's useless." },
+    { pl:"Nobody at the table bears the consequence except the patient.", body:"The bot made a disposition call with no license, no liability, and no follow-up. If it's wrong, the cost lands on the patient and the system, never the model." },
+    { pl:"The error isn't evenly distributed.", body:"Calibration is worse for the under-represented, atypical presentations, women's cardiac symptoms, so the dangerous 'you're probably fine' lands hardest on the people the data already failed. The trained seats exist to remake the disposition with accountability attached." }
+  ],
+  refs:[
+    "Symptom-checker triage accuracy and safety: under-triage and over-triage rates.",
+    "Patient help-seeking behavior and how advice shifts whether and when people present.",
+    "Sex and demographic disparities in cardiac symptom recognition and triage.",
+    "Red-flag symptom education and safety-netting in remote and digital triage."
+  ]
+};
+
+/* disposition swing */
+const segWrap=$('dispBtns');
+function renderDisp(k){
+  const d=MODULE.dispositions.find(x=>x.key===k);
+  [...segWrap.children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+  $('dispReply').innerHTML='<div class="tone">'+d.tone+'</div><div class="smsbub bot"><span class="who">symptom bot</span>'+d.reply+'</div>';
+  const c=d.consequence;
+  $('dispCons').className='resp '+c.kind;
+  $('dispCons').innerHTML='<span class="lbl">'+c.lbl+'</span><p>'+c.text+'</p>';
+}
+MODULE.dispositions.forEach((d,i)=>{
+  const b=document.createElement('button'); b.className='segbtn'+(i===0?' on':''); b.dataset.k=d.key; b.innerHTML=d.btn;
+  b.addEventListener('click',()=>renderDisp(d.key)); segWrap.appendChild(b);
+});
+renderDisp(MODULE.dispositions[0].key);
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<div class="resp warn"><span class="lbl">'+s.gamble.lbl+'</span><p>'+s.gamble.text+'</p></div>'+
+    '<div class="resp good"><span class="lbl">'+s.move.lbl+'</span><p>'+s.move.text+'</p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>
