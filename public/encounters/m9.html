@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Proper-Use Practicum — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Module 09</span>
+</div></header>
+
+<style>
+/* Practicum-specific: four-edition playbook */
+.rule{background:#0f1722;border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:16px 18px;margin-top:12px}
+.rule h4{margin:0 0 8px;color:#fff;font-size:1.02rem;font-family:'Hanken Grotesk',system-ui,sans-serif}
+.rule .do,.rule .avoid{display:block;padding-left:24px;position:relative;margin:7px 0;line-height:1.5}
+.rule .do{color:#dfe7f0}
+.rule .do:before{content:"\2713";position:absolute;left:0;color:#1ABC9C;font-weight:700}
+.rule .avoid{color:#9fb0c4}
+.rule .avoid:before{content:"\2715";position:absolute;left:0;color:#c0654f;font-weight:700}
+.flagbox{background:rgba(192,57,43,.08);border:1px solid #c0654f;border-radius:12px;padding:18px 20px;margin:20px 0}
+.flagbox .lbl{display:block;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:#e8918a;font-weight:700;margin-bottom:8px}
+.flagbox p{color:#f0d9d2;margin:0 0 8px}
+.flagbox ul{margin:8px 0 0;padding-left:18px;color:#f0d9d2}
+.flagbox li{margin:5px 0}
+.coachbox{background:rgba(46,120,199,.08);border:1px solid #2E78C7;border-radius:12px;padding:18px 20px;margin:20px 0}
+.coachbox .lbl{display:block;font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:#6fb1e8;font-weight:700;margin-bottom:8px}
+.coachbox ul{margin:8px 0 0;padding-left:18px;color:#dfe7f0}
+.coachbox li{margin:6px 0}
+.edintro{color:#aebccd;font-size:1.05rem;line-height:1.6;margin:6px 0 4px}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 09 · The proper-use practicum</div>
+    <h1 class="display">Using AI well. Four jobs, four playbooks.</h1>
+    <p>The eight encounters showed what goes wrong, and what goes right. This is the how-to: the proper-use playbook for each seat, the moves, the lines you don't cross, and for clinicians, how to coach the patient who walks in already using it. Pick your edition.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Choose your edition</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panel"></div>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">The proper-use practicum, AI in the Exam Room. A free, non-commercial educational initiative by John C. Ferguson, MD, FACS. For teaching only, not medical advice. If you're in crisis, call or text 988 (US).</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+/* ===== FOUR EDITIONS — genuinely separate curricula ===== */
+const EDITIONS = {
+  patient:{
+    tab:"Patient",
+    title:"Using AI for your own health, well",
+    intro:"AI can make you a better-prepared patient or a worse-informed one, and the difference is entirely how you use it. Three rules, and the red flags that override all of them.",
+    rules:[
+      { h:"Prepare with it, don't diagnose with it.",
+        do:"Use it to organize your history, list your medications, and draft the questions you want to ask. Walk in ready.",
+        avoid:"Don't arrive convinced of the answer. A summary is a starting point for the visit, not a verdict that replaces it." },
+      { h:"Share it without anchoring your clinician.",
+        do:"Offer what you found as \u201chere's what I read, what do you think?\u201d Let them examine and reason from scratch.",
+        avoid:"Don't lead with \u201cthe AI says I have X.\u201d That can anchor a busy clinician toward your guess instead of their judgment." },
+      { h:"Treat confident answers with skepticism; verify what you'd act on.",
+        do:"Ask for a source you can check, and trust \u201cI don't know\u201d more than a flawless paragraph.",
+        avoid:"Don't act on a medication or supplement answer without a pharmacist or clinician confirming it." }
+    ],
+    flags:{ lbl:"Stop reading and be seen", intro:"Some symptoms mean close the app and get help now, no matter how calm the screen sounds:", items:[
+      "Chest pressure or pain, especially with shortness of breath.",
+      "Face drooping, arm weakness, or slurred speech (FAST).",
+      "The worst headache of your life, or sudden trouble speaking or seeing.",
+      "Trouble breathing, or any symptom that's severe and sudden.",
+      "Thoughts of harming yourself, call or text 988 (US)." ],
+      close:"When in doubt with a time-critical symptom, a human, not another message." },
+    takehome:{ title:"The patient one-pager", items:[
+      "Use AI to organize and prepare for visits, not to self-diagnose.",
+      "Share findings as questions, not conclusions.",
+      "Verify anything you'd act on with a human.",
+      "Know your red flags; call, don't chat, for those." ] }
+  },
+
+  caregiver:{
+    tab:"Caregiver",
+    title:"Using AI for someone you care for",
+    intro:"When you use AI for someone who can't, the stakes double and the consequence is yours. Used well, it's the coordination help the system never gave you. Three rules, and the line you don't cross.",
+    rules:[
+      { h:"Verify before you act for someone who can't.",
+        do:"For anything you'd give or do, a medication, a supplement, a change in care, confirm with a pharmacist or their team first.",
+        avoid:"Don't act on a confident answer about a vulnerable person on the strength of its tone. Fluency is not safety." },
+      { h:"Use it to coordinate and understand, not to decide.",
+        do:"Consolidate records and medications across providers into one picture; use it to understand the diagnosis in plain language and build the question list.",
+        avoid:"Don't let it make the call. You bring organization and knowledge of the person; the meds and the plan get confirmed by humans." },
+      { h:"Advocate with the team, not around it.",
+        do:"Bring the one organized picture and your specific questions; ask them to confirm what's about this person's body, not the average body.",
+        avoid:"Don't substitute the chatbot for the conversation. You're the bridge between a general answer and their specific care." }
+    ],
+    flags:{ lbl:"When to go human, now", intro:"If you're caring for someone and you see a red flag, that's a call, not a query:", items:[
+      "FAST signs, face drooping, arm weakness, slurred speech.",
+      "Chest pressure with shortness of breath.",
+      "A sudden change you can see but they can't describe.",
+      "Any instinct that says \u201cthis is different.\u201d" ],
+      close:"Trust your eyes over a calm screen, and call a nurse line or 911." },
+    takehome:{ title:"The caregiver one-pager", items:[
+      "Verify anything you'd act on with a human first.",
+      "Use AI to coordinate and understand, not to decide.",
+      "Bring one organized picture; advocate with the team.",
+      "For red flags, trust your eyes and call." ] }
+  },
+
+  physician:{
+    tab:"Physician",
+    title:"Using AI in practice, and coaching the patient who brings it",
+    intro:"The standard of care is moving toward exposure both for using AI carelessly and for ignoring it entirely. Used well it's uplift; used wrong it's liability theater. Where it helps, where judgment stays primary, and how to coach the patient across from you.",
+    rules:[
+      { h:"Calibrate trust to the task, not the fluency.",
+        do:"Lean on it for labor, records, drafts, a second-read flag. Keep the judgment: synthesis, the exam, the diagnosis, the decision.",
+        avoid:"Don't let eloquence stand in for evidence. A claim with no verifiable source is a hypothesis, not a fact." },
+      { h:"Verify and document, real human-in-the-loop, not a rubber stamp.",
+        do:"Verify what matters before you rely on it; document what the AI contributed and that you reviewed it. Stay the one who can say no and signs.",
+        avoid:"Don't cosign output you didn't evaluate. A co-pilot you can't override is an autopilot with your name on the paperwork." },
+      { h:"Model intelligent humility.",
+        do:"Say \u201cI don't know, let me check\u201d out loud. You teach trainees and patients that humility is a strength the machine can't perform.",
+        avoid:"Don't let a confident tool pressure you into false certainty." }
+    ],
+    coach:{ lbl:"Coach the patient who brings AI in", items:[
+      "Read where they sit on the AI-literacy curve: prepared, or pre-diagnosed and anchored?",
+      "Welcome the prepared and the AI-informed under-served patient, that's a win, not a fight.",
+      "Gently correct anchoring or confident-wrong beliefs; redirect to sources they can verify.",
+      "Hand them the patient one-pager and the red-flag card on the way out." ] },
+    flags:{ lbl:"Where judgment stays primary", intro:"Calibrate by task:", items:[
+      "Reliable uplift: documentation, record synthesis, drafting, surfacing items to check.",
+      "Judgment stays primary: diagnosis, the exam, disposition, anything time-critical or high-stakes.",
+      "Never delegate: the decision, and the accountability for it." ],
+      close:"If you'd be liable for it, you own it, AI or no AI." },
+    takehome:{ title:"The physician quick-reference", items:[
+      "Calibrate trust to task and source, never to fluency.",
+      "Verify and document; keep real override and accountability.",
+      "Model \u201cI don't know.\u201d",
+      "Read the patient's AI literacy, coach in real time, and hand them the page." ] }
+  },
+
+  nurse:{
+    tab:"Nurse",
+    title:"Scope-appropriate use, and protecting the patient at the point of care",
+    intro:"You're the last filter before a confident-wrong answer becomes an order carried out or a belief the patient carries home. Use AI within scope, catch what it gets wrong, and teach the families who arrive already using it.",
+    rules:[
+      { h:"Use it within scope, to amplify, not replace.",
+        do:"Let it draft reconciliation lists and first-pass teaching; you confirm against the real bottles and tailor to the patient.",
+        avoid:"Don't let a draft become the final word. The safety lives in your confirm-and-correct." },
+      { h:"Catch confident-wrong at the point of care.",
+        do:"When something sounds authoritative but lands wrong against a trusted reference, stop and verify before it's actioned or repeated to the patient.",
+        avoid:"Don't pass along an unfamiliar \u201ccited\u201d claim unverified. The citation may not exist." },
+      { h:"Teach patients and families proper use.",
+        do:"Many arrive already using AI. Meet them: affirm the preparation, correct the anchoring, point to verifiable sources, hand over the take-home.",
+        avoid:"Don't dismiss the tool, and don't let it go unexamined. Both leave the patient less safe." }
+    ],
+    flags:{ lbl:"Re-triage, and the red flags", intro:"Triage to the symptom, not the chatbot's verdict:", items:[
+      "Re-ask onset and red flags from scratch, as if no app was involved.",
+      "Escalate FAST signs and chest pressure with shortness of breath regardless of what an app told them.",
+      "Surface floods or clusters, an upstream tool mis-calibrating a population is a safety signal." ],
+      close:"The patient anchored on a confident screen; you generate the disposition that's accountable." },
+    takehome:{ title:"The nurse quick-reference", items:[
+      "Use AI within scope to amplify reconciliation and teaching.",
+      "Confirm against the real source; catch confident-wrong before it's actioned.",
+      "Re-triage from the symptom, not the app's verdict.",
+      "Teach families proper use; hand over the take-home." ] }
+  }
+};
+
+const ORDER=["patient","caregiver","physician","nurse"];
+const tabs=$('tabs');
+ORDER.forEach((k,i)=>{
+  const t=document.createElement('button'); t.className='tab'; t.dataset.k=k;
+  t.innerHTML='<span class="dot"></span>'+EDITIONS[k].tab;
+  t.addEventListener('click',()=>activate(k));
+  tabs.appendChild(t);
+});
+
+function activate(k){
+  const e=EDITIONS[k];
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(t.dataset.k===k)t.classList.add('seen');});
+  let html='<div class="role" style="margin-top:6px">'+e.title+'</div>'+
+    '<p class="edintro">'+e.intro+'</p>';
+  e.rules.forEach((r,i)=>{
+    html+='<div class="rule"><h4>'+(i+1)+'. '+r.h+'</h4>'+
+      '<span class="do">'+r.do+'</span>'+
+      '<span class="avoid">'+r.avoid+'</span></div>';
+  });
+  if(e.coach){
+    html+='<div class="coachbox"><span class="lbl">'+e.coach.lbl+'</span><ul>'+
+      e.coach.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  }
+  const f=e.flags;
+  html+='<div class="flagbox"><span class="lbl">'+f.lbl+'</span><p>'+f.intro+'</p><ul>'+
+    f.items.map(it=>'<li>'+it+'</li>').join('')+'</ul>'+
+    (f.close?'<p style="margin-top:10px">'+f.close+'</p>':'')+'</div>';
+  html+='<div class="takehome"><span class="lbl">Take this with you</span><h4>'+e.takehome.title+'</h4><ul>'+
+    e.takehome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  $('panel').innerHTML=html;
+}
+
+const params=new URLSearchParams(location.search);
+let ED=params.get('edition')||params.get('seat')||'patient';
+if(!EDITIONS[ED])ED='patient';
+activate(ED);
+</script>
+</body>
+</html>
