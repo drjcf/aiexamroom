@@ -1,8 +1,9 @@
-node_modules
-.next
-out
-.env*.local
-*-debug.log
-firebase-debug.*.log
-serviceAccount*.json
-.firebase
+node_modules/
+.next/
+.env*
+.DS_Store
+
+serviceAccount.json
+*serviceaccount*.json
+*-key.json
+.env*
