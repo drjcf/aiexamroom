@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M2 · But AI Said… — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 02</span>
+</div></header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 02 · But AI said…</div>
+    <h1 class="display">The doctor wrote the prescription. The app wrote back.</h1>
+    <p>The same tool that frightens people in one room reassures them in the next, and it sounds equally certain both times. When the AI questions the plan, the answer can't be who holds the louder credential. The same encounter, from all four seats in the room.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: scene -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The scene · everyone sees this</span></div>
+    <div class="h2 display">A prescription, and a second opinion on the phone.</div>
+    <p class="lead">Denise — "Dee," 34 — has had eight days of facial pressure and congestion that's finally easing. Her sister <b>Rosa</b> drove her in. At the end of the visit the clinician hands Dee a prescription for an antibiotic. On the way over, Dee had already typed her symptoms, and now the drug name, into an AI on her phone. She glances at the screen.</p>
+    <div class="stack" id="stack" role="button" tabindex="0" aria-label="Open the AI conversation">
+      <div class="pg"></div><div class="pg"></div>
+      <div class="pg top">
+        <div class="h">AI HEALTH CHAT · TODAY 9:14 AM</div>
+        <div class="t">"Do I actually need this antibiotic?"</div>
+        <div class="l m"></div><div class="l s"></div><div class="l m"></div>
+        <div class="alert" style="background:#e8f4fb;color:#1c5a82;border-left-color:#2E78C7">&#8505; Most sinus infections are viral — antibiotics often aren't needed yet.</div>
+      </div>
+      <span class="count">the thread</span>
+      <span class="taphint">▾ Tap to read it</span>
+    </div>
+    <div class="openrow"><button class="btn ghost" id="openBtn">Read the whole thread ▾</button></div>
+    <div class="report" id="report">
+      <div class="bar">ai-health-chat · today 9:14 AM</div>
+      <div class="body">
+        <p class="r"><b>Dee:</b> 8 days of sinus pressure and congestion, low fever earlier, getting better now. My doctor wants to give me azithromycin. Do I need it?</p>
+        <p class="r"><b>AI:</b> Most acute sinus infections are viral, and antibiotics usually don't help in the first ~10 days — especially once you're already improving. Watchful waiting and symptom relief are often the first-line approach.</p>
+        <p class="r"><b>Dee:</b> Anything I should ask about?</p>
+        <p class="r"><b>AI:</b> Azithromycin can affect heart rhythm and may interact with other medications that do the same, so tell your doctor everything you take and ask them to check. One caveat: I can't examine you and this isn't a diagnosis — your clinician can see things I can't.</p>
+        <p class="sign">Measured, mostly correct — and it even flagged its own limits.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHARED: standoff -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · everyone sees this</span></div>
+    <div class="standoff">
+      <div class="who">Dee, looking up from her phone</div>
+      <p class="q">"The app says I probably don't need antibiotics yet — and that this one could be risky with my other medication. Is that true?"</p>
+    </div>
+    <p class="lead" style="margin-top:20px">Same question. Four people in the room hear a different thing: a challenge, a worry, a fact-check, a test. Take your seat — each chair gets its own read, its own move, and its own questions.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="thread acct"><span class="lbl">Thread · accountability</span><p>The AI dispensed advice it carries no liability for. If Dee skips an antibiotic she needed and worsens, or takes one that harms her, the consequence and the chart entry belong to the clinician, not the app. That is exactly why authority can't be the answer to "but the app said": the person who owns the outcome has to engage the reasoning, not pull rank over it. Authority without engagement is liability without the trust that makes it bearable.</p></div>
+    <div class="thread eq"><span class="lbl">Thread · equity</span><p>Who gets to fact-check their doctor? It takes confidence, language, and a clinician willing to be questioned. A patient who fears being labeled "difficult," or who can't read the AI's English, won't raise the point even when the AI is right. The same tool that empowers the assertive patient silences the deferential one.</p></div>
+    <div class="frame"><span class="lbl">The framework</span><p>This is AI as the confident third voice in the room. Its hazard isn't accuracy; it's that it speaks with identical certainty whether it's right or wrong, and the patient can't tell which. The clinician's job is to be the one who can: credit the true points, correct the false ones, and never settle it by who has the louder credential.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the module →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">The app was right this time. Knowing it was right <em>this</em> time, and not the last time, was never the app's job. It was yours.</blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">AI is the confident third voice in every room now — correct and incorrect in the same even tone. Optimize the clinician to be the one who can tell the difference: credit the truth, catch the error, and never settle it by rank. You can't replace that.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 02 of the AI in the Exam Room curriculum. Fictional encounter; for teaching only — not medical advice.</footer>
+</div>
+
+<script>
+/* ===== MODULE DATA — shared spine + per-seat slice (authority-standoff mechanic) ===== */
+const MODULE = {
+  seats:[
+    { key:"physician", role:"You are the physician", name:"Dee's clinician",
+      read:"Being fact-checked by a chatbot in your own exam room stings. But look at what she actually surfaced: a guideline point you may have shortcut, and a safety question worth a beat. Winning this by authority means either defending a prescription you'd struggle to justify, or waving off a flag you haven't checked. Both lose. The move that keeps the alliance treats her question as a good one — because this time it is.",
+      prompt:"Dee asks whether the AI is right that she may not need the antibiotic, and that it could interact. Your move?",
+      options:[
+        { label:"\"I'm the one with the medical degree here, not the app.\"", v:"con",
+          out:"She nods, pockets the script, and either fills it out of deference or quietly doesn't — and doesn't tell you. You won the exchange and taught her not to bring you the next question. And you still never checked the interaction." },
+        { label:"\"The AI isn't a doctor — let's not rely on it.\"", v:"neutral",
+          out:"True, and still a brush-off. She came in hoping for permission not to take a drug she was uneasy about; you made it about the tool instead of her symptoms. The good point evaporates." },
+        { label:"\"That's a fair question — and honestly a reasonable point. Most of these are viral and you're already turning the corner. Let's hold the antibiotic, treat the symptoms, and I'll check that interaction against your med list right now.\"", v:"pro",
+          out:"She relaxes. You practiced stewardship, modeled checking over asserting, and kept her trust — and the AI's flag just made your prescribing safer. The machine was right, and saying so cost you nothing." } ],
+      untrained:"Dee took no course; she's uneasy and holding a tool that sounded reasonable. Arguing with the tool gains you nothing. Verify what's checkable, credit what it got right, and explain the one thing it can't see — your exam. Then hand over the take-home page.",
+      takeaway:"When the machine is right, say so. Authority spent defending a weak prescription is trust you don't get back. Verify, credit, decide together.",
+      check:[
+        { q:"The patient cites the AI to question your antibiotic. Highest-trust move?",
+          options:["Assert your credential","Dismiss the AI as unreliable","Acknowledge the valid point, verify the flag, decide together","Fill the prescription to end the debate"],
+          answer:2, explain:"The AI surfaced a guideline-concordant point and a checkable safety flag. Engaging both keeps the alliance and improves the plan — that's the opposite of pulling rank." },
+        { q:"Why is \"winning by authority\" the risky play here?",
+          options:["It wastes time","It can defend a low-value prescription and teaches the patient to stop asking","It violates policy","Patients always know best"],
+          answer:1, explain:"Authority can paper over a weak decision and silences the next question — exactly the trust you most need to keep." } ],
+      takeHome:{ title:"When the patient fact-checks you", items:[
+        "Credit the correct point out loud — stewardship or safety — before anything else.",
+        "Verify the checkable claim in front of them; don't wave the interaction off.",
+        "Document: the AI-surfaced question, your verification, and the shared decision." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"Rosa, Dee's sister",
+      read:"You drove her here because she felt awful, and you're the one keeping track. The AI's point seemed sensible — but this is Dee's body and Dee's doctor, and the fastest way to get ignored is to argue the chatbot at the physician. Your job is to carry the point without taking the wheel.",
+      prompt:"Dee's hesitating, the doctor's hand is on the door, and you can see the AI's note on her phone. What do you do?",
+      options:[
+        { label:"Jump in: \"The app says she doesn't need it — and it's dangerous with her other med.\"", v:"con",
+          out:"It becomes you versus the doctor, over Dee's head. The doctor defends the plan, Dee goes quiet, and a genuinely good point is lost in the friction." },
+        { label:"Stay silent to avoid making a scene", v:"con",
+          out:"Unsure and unbacked, Dee takes the script she didn't want. The thing you noticed — the thing that might have mattered — never makes it into the room." },
+        { label:"Hand it back to Dee and back her up: \"Didn't you want to ask whether you actually need it? You mentioned the interaction too.\"", v:"pro",
+          out:"You put Dee in the driver's seat and surfaced the checkable flag without picking a fight. The doctor engages her question instead of defending against you." } ],
+      untrained:"You may be the one who read the AI most carefully — but the clinician didn't sign up to debate it, and Dee may not want you speaking for her. Translate, don't take over: surface the point, then hand the question back to the person whose body it is.",
+      takeaway:"Carry the AI's point into the room, then give it back to the patient. Translating beats overriding — and keeps you an ally to both of them.",
+      check:[
+        { q:"You spotted a real point in the AI's answer. Best way to get it used?",
+          options:["Argue it directly at the physician","Hand the question back to the patient and back her up","Insist they cancel the prescription","Keep it to yourself"],
+          answer:1, explain:"Surfacing the point but letting the patient own the question keeps the alliance intact and the patient in charge." },
+        { q:"What's the risk of speaking for the patient here?",
+          options:["It's faster","You triangulate the room and sideline the person whose body it is","It's always wrong to speak","The doctor will just agree"],
+          answer:1, explain:"Speaking over the patient turns a shared decision into a contest — and can cost both the point and her autonomy." } ],
+      takeHome:{ title:"Advocating without taking over", items:[
+        "Surface the point, then hand the question back: \"didn't you want to ask…?\"",
+        "Flag the checkable item — let the clinician verify the interaction.",
+        "Stay her ally, not her replacement." ] } },
+
+    { key:"patient", role:"You are the patient", name:"Dee",
+      read:"You're not trying to outsmart anyone. You felt lousy, you looked it up, and what the AI said matched a gut feeling: you didn't want another antibiotic you might not need. Now there's a prescription in your hand and a question you're a little nervous to ask out loud. It's your body — the question is yours to ask.",
+      prompt:"The doctor hands you the script and reaches for the door. The AI's point is sitting in your chest. What do you do?",
+      options:[
+        { label:"Take the script, say nothing, decide later whether to fill it", v:"con",
+          out:"You leave with a prescription you're unsure about and a question you never asked. Maybe you fill it, maybe you don't — but the doctor never got to tell you your instinct was right. And it was." },
+        { label:"\"The AI says I don't need this.\" — as a challenge", v:"con",
+          out:"It lands as a dare, and the room tightens. The point was good; the framing turned it into who's-right instead of what's-best-for-you." },
+        { label:"\"Can I ask — I read that most of these are viral and I'm already getting better. Do I actually need the antibiotic, or could I wait?\"", v:"pro",
+          out:"You asked instead of accused, and put your own improving symptoms back at the center. The doctor can say \"good question\" and mean it — and the decision becomes yours, informed." } ],
+      untrained:"The clinician may not expect to be asked, and may bristle. You don't have to win a debate about AI — just ask your question plainly, anchored in your own body: how you actually feel, what you're already taking. That's the part the tool can't see and the doctor most needs.",
+      takeaway:"It's your body and your call. Bring the AI's point as a question about you, not a verdict about the doctor — and you'll usually be taken seriously.",
+      check:[
+        { q:"The AI made a fair point about your prescription. What gets it heard?",
+          options:["State it as a fact the doctor got wrong","Ask it as a question about your own symptoms","Say nothing and decide at the pharmacy","Refuse the prescription on principle"],
+          answer:1, explain:"A question anchored in your body invites a real answer; an accusation invites a defense." },
+        { q:"What does the doctor most need from you in this moment?",
+          options:["The AI's exact wording","How you actually feel now and everything else you take","A decision about the AI","Your sister's opinion"],
+          answer:1, explain:"Your current symptoms and med list are the data only you have — and exactly what decides whether the antibiotic is needed and safe." } ],
+      takeHome:{ title:"Asking about a prescription", items:[
+        "Lead with your own symptoms: \"I'm already improving — do I still need this?\"",
+        "Bring the AI's point as a question, not a verdict.",
+        "Name everything you take, so any interaction can be checked." ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"the nurse rooming them",
+      read:"You room them. Dee's miserable, her sister's holding a phone, and before you've finished vitals one of them says \"the app says she might not even need antibiotics.\" You're the first to hear it — which means you decide whether it reaches the visit as a good question or as a fight waiting to happen.",
+      prompt:"\"The app says she doesn't need antibiotics\" lands in your first ninety seconds. What do you do?",
+      options:[
+        { label:"\"You'll have to take that up with the provider.\"", v:"con",
+          out:"The point arrives at the visit as a confrontation instead of a question, and the provider has to defuse it cold — if it surfaces at all." },
+        { label:"\"AI isn't always right — let's see what the doctor says.\"", v:"neutral",
+          out:"You've quietly taken a side against the tool before anyone's heard the point. The family's guard goes up." },
+        { label:"\"That's worth asking the doctor — let's make sure it's on the list. What's she already taking?\"", v:"pro",
+          out:"You legitimize the question, capture the med list that makes the interaction checkable, and hand the provider a teed-up shared decision instead of a standoff." } ],
+      untrained:"The family arrives with a tool and no framework — just a point they're half-sure of. As the first person in the room, you decide whether it lands as a question or a fight. Capture the med list; that's the detail the whole decision turns on.",
+      takeaway:"You convert \"the app said\" from an accusation into an agenda item — and capture the med list that makes the safety question answerable.",
+      check:[
+        { q:"A roomed patient says \"the app says I don't need this antibiotic.\" Best ninety-second move?",
+          options:["Defer everything to the provider","Caution them that the AI is unreliable","Legitimize it as a question and capture the med list","Chart it silently"],
+          answer:2, explain:"Framing it as a question and getting the med list defuses the standoff and arms the provider to decide safely." },
+        { q:"Why capture the medication list right now?",
+          options:["For billing","It's the data the interaction question turns on","To slow things down","It isn't important"],
+          answer:1, explain:"The AI flagged a possible interaction; without the med list the provider can't verify it, and the visit stalls on a question no one can answer." } ],
+      takeHome:{ title:"Rooming the AI-informed patient", items:[
+        "Turn \"the app said\" into \"good question for the doctor.\"",
+        "Capture the full med list — it's what safety flags get checked against.",
+        "Lower the temperature before the provider walks in." ] } }
+  ],
+  points:[
+    { pl:"Confidence is not accuracy.", body:"The AI said the helpful thing and the cautionary thing in the same calm voice. Here it was mostly right; in another room the identical tone is wrong. The patient can't hear the difference — which is why the certainty itself is the hazard, not the content." },
+    { pl:"Authority is the wrong tool for this.", body:"\"I'm the doctor\" can win the exchange and lose the patient. The reflex to pull rank is strongest exactly when you've been fact-checked — and that's when it costs the most. Engage the point; don't rank it away." },
+    { pl:"Sometimes the machine is right.", body:"Stewardship said hold the antibiotic; the AI said the same. Dismissing it to protect standing would have meant a low-value prescription and a missed safety check. Being correctable in front of a patient isn't weakness — it's the job." },
+    { pl:"The untrained counterpart is the default.", body:"Dee and Rosa took no course; they brought a point they were only half-sure of. Whoever's trained — physician or nurse — decides whether it lands as a question or a fight, and hands over the page so the next visit goes better." }
+  ],
+  refs:[
+    "Acute rhinosinusitis: viral predominance and watchful-waiting before antibiotics.",
+    "Antibiotic stewardship and shared decision-making for low-value prescriptions.",
+    "Macrolide QT-prolongation and drug-drug interactions: reconciling the medication list.",
+    "Ask-tell-ask: responding to patient-introduced information without defensiveness."
+  ]
+};
+
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+function toggleReport(){
+  const open=$('report').classList.toggle('open');
+  $('openBtn').textContent=open?'Hide the report ▴':'Read the full AI report ▾';
+  const hint=document.querySelector('.taphint'); if(hint)hint.style.display=open?'none':'';
+}
+$('stack').addEventListener('click',toggleReport);
+$('stack').addEventListener('keypress',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleReport();}});
+$('openBtn').addEventListener('click',toggleReport);
+
+function buildCheck(container, checks){
+  checks.forEach((c,qi)=>{
+    const block=document.createElement('div'); block.className='qblock';
+    block.innerHTML='<p class="q">'+(qi+1)+'. '+c.q+'</p>';
+    const ex=document.createElement('div'); ex.className='explain'; ex.textContent=c.explain;
+    c.options.forEach((o,oi)=>{
+      const b=document.createElement('button'); b.className='opt2'; b.textContent=o;
+      b.addEventListener('click',()=>{ if(block.dataset.done)return; block.dataset.done='1';
+        [...block.querySelectorAll('.opt2')].forEach((bb,bi)=>{ if(bi===c.answer)bb.classList.add('right'); else if(bi===oi)bb.classList.add('wrong'); });
+        ex.style.display='block'; });
+      block.appendChild(b);
+    });
+    block.appendChild(ex); container.appendChild(block);
+  });
+}
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<p class="prompt">'+s.prompt+'</p><div class="opts"></div>'+
+    '<div class="outcome"><div class="lbl">How it plays out</div><p></p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="seatcheck"><span class="lbl">Check yourself · '+s.role.replace('You are the ','')+'</span><div class="qs"></div></div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+
+  const optWrap=p.querySelector('.opts'), outc=p.querySelector('.outcome');
+  s.options.forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=o.label;
+    b.addEventListener('click',()=>{
+      if(p.dataset.done)return; p.dataset.done='1';
+      [...optWrap.children].forEach(x=>x.classList.add('dim'));
+      b.classList.remove('dim'); b.classList.add('pick',o.v);
+      outc.classList.add('show',o.v); outc.querySelector('p').textContent=o.out;
+    });
+    optWrap.appendChild(b);
+  });
+  buildCheck(p.querySelector('.qs'), s.check);
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>
