@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M4 · The Unsensed Room — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 04</span>
+</div></header>
+
+<style>
+/* M4-specific: reveal-the-room mechanic */
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.chip{font:inherit;cursor:pointer;background:#0f1722;border:1px solid rgba(255,255,255,.16);color:#cdd8e6;border-radius:999px;padding:9px 16px;font-size:.92rem;transition:.15s}
+.chip:hover{border-color:#1ABC9C;color:#fff}
+.chip.on{background:rgba(26,188,156,.14);border-color:#1ABC9C;color:#fff}
+.revcard{background:#0f1722;border:1px solid rgba(255,255,255,.1);border-left:3px solid #c0654f;border-radius:10px;padding:14px 16px;margin-top:10px}
+.revcard .rc-h{font-weight:700;color:#fff;font-size:.95rem;margin-bottom:5px}
+.revcard .rc-s{color:#f0d9d2;margin:0 0 6px}
+.revcard .rc-w{color:#9fb0c4;margin:0;font-size:.92rem}
+.flip{background:rgba(192,57,43,.08);border:1px solid #c0654f;border-radius:12px;padding:16px 18px;margin-top:16px}
+.flip .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:#dc9;font-weight:700;margin-bottom:6px}
+.flip p{margin:0;color:#f0d9d2}
+.resp{border-radius:10px;padding:14px 16px;margin-top:12px;border-left:3px solid}
+.resp .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.resp p{margin:0;color:#dfe7f0}
+.resp.good{background:rgba(26,188,156,.08);border-color:#1ABC9C}
+.resp.good .lbl{color:#1ABC9C}
+.resp.info{background:rgba(46,120,199,.08);border-color:#2E78C7}
+.resp.info .lbl{color:#6fb1e8}
+.transcript{background:#080c12;border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:20px 20px;margin:16px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem;line-height:1.62}
+.transcript .ln{display:block;margin:0 0 14px;white-space:pre-wrap}
+.transcript .ln:last-child{margin-bottom:0}
+.transcript .spk{color:#4a5973;letter-spacing:.04em;text-transform:uppercase;font-size:.74rem;user-select:none}
+.transcript .txt{color:#9fb1c6}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 04 · The unsensed room</div>
+    <h1 class="display">The AI read his message. It never saw his face.</h1>
+    <p>AI reasons only on what reaches it. The droop he calls pillow creases, the slur, the fumbled mug, the clock, none of it travels down the wire. You have ten billion sensors in the room. It has the words. The same morning, from all four seats.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: the thin slice + reveal-the-room -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The slice · everything the AI got</span></div>
+    <div class="h2 display">What the AI sees.</div>
+    <p class="lead">Walter, 71, is alone in the kitchen, grandkids due in a few hours. He opens the symptom checker and describes what he sees in the mirror. Here is the whole conversation, every byte the AI has to reason from.</p>
+    <div class="transcript" aria-label="The full chat transcript the AI received">
+      <span class="ln"><span class="spk">user &rsaquo;</span> <span class="txt">The left side of my face looks different. I think I slept on it wrong. When will it go away? My grandkids will be here in a few hours.</span></span>
+      <span class="ln"><span class="spk">ai &nbsp;&rsaquo;</span> <span class="txt">That's just the impressions from your pillow, common after sleeping on one side. Don't worry, it should be gone before the kids get there. Do you have plans for the day?</span></span>
+    </div>
+    <p class="lead" style="color:#7d8ba0;font-size:1rem">No face. No voice. No clock. That flat little exchange is the whole of what the machine can sense.</p>
+
+    <div class="h2 display" style="margin-top:28px">Now reveal the room.</div>
+    <p class="lead">All of this was in the kitchen with him. None of it reached the screen. Tap each one.</p>
+    <div class="chips" id="roomChips"></div>
+    <div id="roomReveal"></div>
+    <div class="flip hidden" id="roomFlip"></div>
+  </section>
+
+  <!-- SHARED: the moment -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · everyone is in the room for this</span></div>
+    <div class="standoff">
+      <div class="who">Nia, the second she walks in</div>
+      <p class="q">"Dad. Smile for me. …Dad, that's not nothing. We're going."</p>
+    </div>
+    <p class="lead" style="margin-top:20px">The screen said wait. The room said go. Take your seat: each chair senses, or misses, a different part of what never reached the wire.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="thread eq"><span class="lbl">Thread · equity</span><p>The sensing gap compounds the representation gap. A teledermatology model trained mostly on light skin misses melanoma on dark skin; a pulse oximeter reads falsely reassuring on dark skin. When the channel is thin <em>and</em> the training data is skewed, the people already underserved are the ones the machine most confidently mis-reads. The unsensed room is not equally unsensed.</p></div>
+    <div class="frame"><span class="lbl">The framework · the velociraptor test</span><p>You have roughly ten billion sensory neurons sampling the room, refined by survival. AI has zero. Until it has to wrestle a velociraptor for dinner, it won't have the contextual awareness evolution gave you. Its answer is only ever as good as the slice that reached it; your value is that you are <em>in the room</em>.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the module →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">The model read every word he wrote and missed the only thing that mattered, because it was never a word. It was a face.</blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">AI reasons on what reaches it. The room, the face, the clock, the wrongness a daughter caught in four seconds, never reach it. Optimize the people in the room to be the sensors the wire will never have. You can't replace ten billion of them.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 04 of the AI in the Exam Room curriculum. Fictional encounter; for teaching only, not medical advice. If you suspect a stroke, call 911 and note the time symptoms started.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+/* ===== MODULE DATA — reveal-the-room mechanic ===== */
+const MODULE = {
+  room:{
+    cues:[
+      { chip:"His face", sensed:"The 'different' side isn't pillow creases, it's a left facial droop that doesn't lift when he tries to smile.", why:"He actually flagged his face. Unable to see it, the AI pattern-matched the words to something benign and reassured him." },
+      { chip:"His voice", sensed:"His speech has a faint slur he hasn't clocked yet.", why:"Slurred speech is the S in FAST. Text has no audio, the slur cannot travel down the wire." },
+      { chip:"His arm", sensed:"Reaching for the coffee, his left hand fumbles the mug, weak and a half-second slow.", why:"Weakness is seen, not typed. He never mentioned the arm, so for the AI it doesn't exist." },
+      { chip:"The clock", sensed:"He's counting the hours until the grandkids arrive, not the minutes since this began, about forty so far.", why:"Time is brain. The AI didn't just miss the clock, it told him to wait, anchoring him to the worst plan." }
+    ],
+    flip:"Put the room back together and 'slept on it wrong' is an acute stroke, and the reassuring answer just started spending the treatment window. Same words to the AI, a different emergency to anyone who could see his face. Nia caught it the second she walked in. The wire never could."
+  },
+  seats:[
+    { key:"physician", role:"You are the physician", name:"the clinician who finally lays eyes on him",
+      read:"By the time Walter reaches you, a machine has already triaged him on a sentence. Your value isn't another opinion on the same words, it's the channel the words never traveled: the face, the speech, the gait, the clock. Name the exam the AI couldn't have, out loud, so everyone understands why laying eyes still decides this.",
+      senses:{ lbl:"What only this seat can sense", text:"The droop, the pronator drift, the dysarthria, the field cut, the real time of onset, the things that are examined, not narrated. AI had his interpretation; you have the findings." },
+      move:{ lbl:"The move", text:"Examine and narrate it: \"I'm watching your face, your arm drift, your speech, this is the part a text can't do.\" Make the sensing visible, and let time of onset drive the decision, not the reassuring message." },
+      untrained:"Walter trusted a slice; the system that triaged him couldn't sense. You're the first node in the chain that can. Don't reason on the summary, reproduce the exam.",
+      takeaway:"AI gives you the patient's words. You generate the findings. In a stroke, that difference is the whole brain.",
+      takeHome:{ title:"Name the exam AI can't have", items:[
+        "Reproduce the exam; never triage a stroke off a remote text summary.",
+        "Narrate what you're sensing so the value of laying eyes is explicit.",
+        "Anchor on time of onset, the decisive fact no channel carries by default." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"Nia, his daughter, in the kitchen",
+      read:"You didn't read a symptom list. You walked in and something was wrong, his face, the way he set down the mug. That jolt is ten billion sensors and a few million years of threat detection firing at once. The screen told him to wait. Your job is to not let a calm answer talk you out of what you can see.",
+      senses:{ lbl:"What only this seat can sense", text:"The droop he can't feel, the slur he's hiding, the unsteadiness, the wrongness you caught before you had words for it. You are the sensor the wire doesn't have." },
+      move:{ lbl:"The move", text:"Trust it and act: \"smile for me, raise both arms, say a sentence.\" If anything's off, call 911 and say the word stroke, and note the time it started. Don't argue with the app, out-sense it." },
+      untrained:"No one trained you, but evolution did. The hardest part isn't seeing it, it's giving yourself permission to override a confident, reassuring answer. Your eyes outrank the chatbot in this room.",
+      takeaway:"You're usually the sensor. When what you see and what the screen says disagree, believe your eyes and move.",
+      takeHome:{ title:"Trust the sensor, that's you", items:[
+        "Run FAST out loud: Face, Arms, Speech, Time.",
+        "If anything's off, call 911 and say \"stroke\"; note when it started.",
+        "A calm AI answer does not outrank what you can see in the room." ] } },
+
+    { key:"patient", role:"You are the patient", name:"Walter, 71",
+      read:"You noticed your own face and still reached for the calm explanation, 'I slept on it wrong', because that's the version you wanted to be true. The AI agreed and told you to wait for the grandkids. Here's the catch: you can't really see your own droop, and a reassuring machine just told you to do the most dangerous thing, nothing.",
+      senses:{ lbl:"What you can't sense about yourself", text:"You can't read your own face the way another person can, and you'll reach for the explanation that lets the day go on. The calm story you told the AI is the least reliable data in the room." },
+      move:{ lbl:"The move", text:"When something feels off and new, especially weakness, speech, or one-sided anything, let a person lay eyes on you instead of self-triaging with a tidy sentence. Some findings only exist from the outside." },
+      untrained:"The AI can only know what you tell it, and you'll tell it the reassuring version. That's human. So make the rule: new neurological symptoms aren't a self-report situation, they're a get-seen situation.",
+      takeaway:"You gave the machine your interpretation, not your findings. For anything sudden and one-sided, get seen, don't self-triage.",
+      takeHome:{ title:"Some things you can't self-report", items:[
+        "Sudden weakness, slurred speech, one-sided anything: call 911, don't chat it.",
+        "Tell a person the unedited version; skip \"probably nothing.\"",
+        "If someone's with you, let them look at you, you can't see your own face." ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"the nurse who takes the call",
+      read:"The message lands on your screen too: 'the left side of my face looks different, I think I slept on it wrong.' A weaker triage takes the words at face value. Triage is sensing, even over a thin channel, your job is to drag the unsensed cues across it: eyes on the face, ears on the voice, and the one number that matters, the time it started.",
+      senses:{ lbl:"What only this seat can sense", text:"Over phone or portal you can still pull the room closer, ask him to smile on video, listen for slur, ask who's with him, pin the time of onset. You sense by interrogating the channel, not trusting it." },
+      move:{ lbl:"The move", text:"Escalate on the cues, not the words: \"can you smile for me on camera? When exactly did this start? Is anyone with you?\" One-sided weakness plus a clock is a 911, not a callback." },
+      untrained:"The patient downplayed it and the channel hid the rest. You're the trained sensor on the line. Don't triage the sentence, triage the person, by pulling everything the wire dropped back into view.",
+      takeaway:"Triage is sensing. Over any channel, your job is to recover the cues it stripped, especially the time of onset.",
+      takeHome:{ title:"Triage is sensing", items:[
+        "Pull cues across the channel: video the face, hear the voice, get who's there.",
+        "Always pin time of onset; it decides the pathway.",
+        "One-sided weakness or new slurred speech: 911 now, not a return call." ] } }
+  ],
+  points:[
+    { pl:"AI reasons only on what reaches it.", body:"The model didn't fail at reasoning; it reasoned correctly on a thin slice. The pallor, the droop, the slur, the clock, none of it traveled down the wire. The problem here isn't garbage in, it's absence in." },
+    { pl:"Some things can't be self-reported.", body:"Walter couldn't feel his own droop, and he typed the calm version. The most decisive findings are exactly the ones the patient can't narrate. That is what an exam is for." },
+    { pl:"The caregiver is usually the sensor.", body:"Nia's 'something's wrong' is ten billion sensors and millions of years of threat detection firing. Don't let a calm text answer override the velociraptor already in the room." },
+    { pl:"The untrained counterpart is the default.", body:"Walter trusted a reassuring slice; Nia almost deferred to it. Whoever's trained, nurse or physician, pulls the unsensed cues across the channel on purpose, 'smile for me,' 'what time did it start,' and lays eyes when it counts." }
+  ],
+  refs:[
+    "FAST and stroke time-to-treatment: time of onset as the decisive variable.",
+    "Limits of text-based symptom triage; findings that cannot be self-reported.",
+    "Teledermatology and pulse-oximetry accuracy across skin tones: the representation gap.",
+    "The sensing gap: clinical gestalt and the cues that never reach a digital channel."
+  ]
+};
+
+/* reveal-the-room */
+(function(){
+  const r=MODULE.room; if(!r)return;
+  const chips=$('roomChips'), rev=$('roomReveal'); let n=0;
+  r.cues.forEach(c=>{
+    const b=document.createElement('button'); b.className='chip'; b.textContent=c.chip;
+    b.addEventListener('click',()=>{
+      if(b.dataset.done)return; b.dataset.done='1'; b.classList.add('on');
+      const card=document.createElement('div'); card.className='revcard';
+      card.innerHTML='<div class="rc-h">'+c.chip+'</div><p class="rc-s">'+c.sensed+'</p><p class="rc-w">'+c.why+'</p>';
+      rev.appendChild(card);
+      if(++n===r.cues.length){const f=$('roomFlip'); f.innerHTML='<span class="lbl">Put the room back together</span><p>'+r.flip+'</p>'; f.classList.remove('hidden');}
+    });
+    chips.appendChild(b);
+  });
+})();
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<div class="resp good"><span class="lbl">'+s.senses.lbl+'</span><p>'+s.senses.text+'</p></div>'+
+    '<div class="resp info"><span class="lbl">'+s.move.lbl+'</span><p>'+s.move.text+'</p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>
