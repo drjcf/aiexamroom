@@ -55,7 +55,17 @@
   .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
   .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
   .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
-  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:18px}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
 
   .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
   .report.open{display:block}
@@ -172,8 +182,9 @@
         <div class="alert">⚠ URGENT: cannot exclude intracranial mass — obtain MRI</div>
       </div>
       <span class="count">9 pages</span>
+      <span class="taphint">▾ Tap to read it</span>
     </div>
-    <p class="stackcap">Tap the stack to read what the AI told her.</p>
+    <div class="openrow"><button class="btn ghost" id="openBtn">Read the full AI report ▾</button></div>
     <div class="report" id="report">
       <div class="bar">ai-health-assistant · report.pdf · generated 02:47</div>
       <div class="body">
@@ -343,8 +354,16 @@ const $=id=>document.getElementById(id);
   let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
   $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
 
-$('stack').addEventListener('click',()=>$('report').classList.toggle('open'));
-$('stack').addEventListener('keypress',e=>{if(e.key==='Enter'||e.key===' ')$('report').classList.toggle('open');});
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+function toggleReport(){
+  const open=$('report').classList.toggle('open');
+  $('openBtn').textContent=open?'Hide the report ▴':'Read the full AI report ▾';
+  const hint=document.querySelector('.taphint'); if(hint)hint.style.display=open?'none':'';
+}
+$('stack').addEventListener('click',toggleReport);
+$('stack').addEventListener('keypress',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleReport();}});
+$('openBtn').addEventListener('click',toggleReport);
 
 function buildCheck(container, checks){
   checks.forEach((c,qi)=>{
