@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Resources — AI in the Exam Room</title>
+<title>AI-use decision flowchart: AI or a doctor? — AI in the Exam Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -194,26 +194,59 @@
 <header><div class="wrap hbar">
   <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
   <span class="name">AI in the Exam Room</span>
-  <span class="tag">Take-home library</span>
+  <span class="tag">Patient</span>
 </div></header>
 <div class="wrap">
-<section class="hero"><div class="num">RESOURCES</div><h1>The take-home library</h1><p>Quick-reference cards, guides, worksheets, and a clinician practice kit, free to use and print.</p><svg class="ecg" viewBox="0 0 800 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0,20 L260,20 L280,20 L292,6 L306,34 L320,20 L540,20 L556,20 L568,9 L582,31 L596,20 L800,20"/></svg></section>
-<div class="tools"><button class="printbtn" onclick="window.print()">Print this index</button></div>
+<section class="hero"><div class="num">PATIENT &middot; DECISION FLOWCHART</div><h1>AI, or a doctor?</h1><p>A flowchart for deciding when AI is appropriate.</p><svg class="ecg" viewBox="0 0 800 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0,20 L260,20 L280,20 L292,6 L306,34 L320,20 L540,20 L556,20 L568,9 L582,31 L596,20 L800,20"/></svg></section>
+<div class="tools"><button class="printbtn" onclick="window.print()">Print / Save as PDF</button><a class="backlink" href="/resources.html">All resources</a></div>
 <main>
 
-<p class="lead">Take-home materials for using AI safely in healthcare, in two tracks. The patient track helps you use AI to prepare for care, not replace it. The clinician track helps you fold AI into the encounter without competing with it. Every page is built to read on screen and print clean on one or a few pages.</p>
+<p class="lead">Should you use AI, or see a doctor? Start at the top and follow the branch that matches your situation. The short version: AI is for preparing and understanding, never for triage, diagnosis, or treatment.</p>
 
-<div class="trackhead"><span class="lbl">For patients &amp; caregivers</span>Patient track</div>
-<div class="hublist">
-<a class="hub" href="/patient-five-questions.html"><p class="t">The five essential questions</p><p class="d">Ask these every time you consult AI about your health.</p><p class="m">Keep near your computer</p></a><a class="hub" href="/patient-red-flags.html"><p class="t">Red flags</p><p class="d">When to stop typing and call 911, by body system.</p><p class="m">Print and keep visible</p></a><a class="hub" href="/patient-decision-flowchart.html"><p class="t">AI, or a doctor?</p><p class="d">A flowchart for when AI is appropriate and when it is not.</p><p class="m">Reference when using AI</p></a><a class="hub" href="/patient-velociraptor-test.html"><p class="t">The velociraptor test</p><p class="d">Trusting your evolutionary wisdom over the algorithm.</p><p class="m">Understand the principle</p></a><a class="hub" href="/patient-hallucination-checklist.html"><p class="t">Spotting a hallucination</p><p class="d">How to tell when an AI is making things up.</p><p class="m">Verify before trusting</p></a><a class="hub" href="/patient-prep-worksheet.html"><p class="t">Appointment prep worksheet</p><p class="d">Organize symptoms, history, and questions before a visit.</p><p class="m">Fillable, print one per visit</p></a><a class="hub" href="/patient-quick-start.html"><p class="t">Quick start</p><p class="d">Using AI safely for your health, in brief.</p><p class="m">Keep handy</p></a><a class="hub" href="/patient-emergency-reference.html"><p class="t">One-page emergency reference</p><p class="d">The fastest version, on a single page.</p><p class="m">Print for the fridge or wallet</p></a><a class="hub" href="/patient-master-guide.html"><p class="t">Master reference guide</p><p class="d">The whole curriculum in one place.</p><p class="m">Comprehensive review</p></a>
+<h2 class="sec">Start: do you have symptoms?</h2>
+<div class="flow">
+<div class="fstep"><div class="q">Are any of these true?</div><p>Symptoms are on the red-flags list &middot; severe or rapidly worsening &middot; you are worried this might be an emergency &middot; your gut says something is seriously wrong.</p>
+<div class="fbranch stop"><div class="h">If any are true &rarr; call 911 or go to the ER now</div>Do not use AI. Do not delay. Afterward you may use AI to prepare: "I am going to the ER for chest pain, what should I tell the doctor?"</div></div>
+
+<div class="farrow">otherwise &darr;</div>
+<div class="fstep"><div class="q">Concerning, but not emergent?</div><p>Persistent symptoms not improving; new symptoms; symptoms interfering with daily life; symptoms that worry you.</p>
+<div class="fbranch"><div class="h">Schedule a doctor's appointment, then use AI to prepare</div>Good: "What questions should I ask about these symptoms?" "What information would help my doctor evaluate this?" Not: deciding whether to go, diagnosing, choosing treatment, or talking yourself out of the visit.</div></div>
+
+<div class="farrow">still deciding? &darr;</div>
+<div class="fstep"><div class="q">Trying to decide whether you need a doctor at all?</div>
+<div class="fbranch stop"><div class="h">That is not a job for AI</div>It cannot make triage decisions. Default rule: when in doubt, see a doctor. If you are reading a flowchart to decide whether to go, the answer is probably yes.</div></div>
 </div>
 
-<div class="trackhead"><span class="lbl">For clinicians &amp; practices</span>Clinician track</div>
-<div class="hublist">
-<a class="hub" href="/clinician-quick-reference.html"><p class="t">Physician quick reference</p><p class="d">Opening question, response scripts, frameworks, and dot-phrases.</p><p class="m">One-page reference</p></a><a class="hub" href="/clinician-pocket-card.html"><p class="t">Pocket card</p><p class="d">The wallet version, plus the when-harm-happens protocol.</p><p class="m">Print and laminate</p></a><a class="hub" href="/clinician-clinical-scenarios.html"><p class="t">Clinical scenarios</p><p class="d">Eight AI-informed encounters with ready-to-use scripts.</p><p class="m">Confirmed, partial, missed, wrong</p></a><a class="hub" href="/clinician-patient-handout.html"><p class="t">Patient handout</p><p class="d">A giveable handout for patients who bring AI to the visit.</p><p class="m">Print for the waiting room</p></a><a class="hub" href="/clinician-documentation-templates.html"><p class="t">Documentation templates</p><p class="d">Copy-paste EHR smart phrases for AI in the encounter.</p><p class="m">For your smart-phrase library</p></a><a class="hub" href="/clinician-implementation-checklist.html"><p class="t">Implementation checklist</p><p class="d">A four-week guide to integrating AI discussion.</p><p class="m">Week by week</p></a><a class="hub" href="/clinician-metrics-tracker.html"><p class="t">Monthly metrics tracker</p><p class="d">Track AI use, accuracy, and the harm metric.</p><p class="m">Fillable monthly sheet</p></a><a class="hub" href="/clinician-staff-training.html"><p class="t">Staff training</p><p class="d">For medical assistants, nurses, and front-desk staff.</p><p class="m">15 to 20 minutes</p></a><a class="hub" href="/clinician-intake-form.html"><p class="t">Intake-form additions</p><p class="d">Capture AI use before the provider walks in.</p><p class="m">Paper, rooming, and digital</p></a>
+<h2 class="sec">No symptoms: learning and preparing</h2>
+<p>These are the good uses. In each case a clinician is still the source of your care; AI just helps you understand it.</p>
+<div class="cols">
+<div class="col off"><h4>Excellent uses</h4><ul><li>Understanding a condition you were diagnosed with</li><li>Understanding a medication you were prescribed</li><li>Making sense of test results before discussing them</li><li>Decoding something your doctor said</li><li>General health learning</li><li>Preparing questions for an appointment</li></ul></div>
+<div class="col keep" style="border-top-color:var(--red)"><h4>Do not use AI to</h4><ul><li>Diagnose your symptoms</li><li>Decide whether to seek care</li><li>Choose or adjust treatment</li><li>Start, change, or stop a medication</li><li>Replace a medical evaluation</li><li>Dismiss a symptom that worries you</li></ul></div>
 </div>
 
-<div class="note"><div class="lbl">The core principle, on every page</div>AI is for information and preparation, not diagnosis and treatment. Information to enhance human care, never to replace it.</div>
+<h2 class="sec">Quick summary</h2>
+<table class="ct">
+<tr><th>Your situation</th><th>Use AI?</th><th>See a doctor?</th></tr>
+<tr><td>Emergency symptoms</td><td class="n">No, call 911 first</td><td class="y">Yes, immediately</td></tr>
+<tr><td>Concerning symptoms</td><td>Only to prepare</td><td class="y">Yes, schedule soon</td></tr>
+<tr><td>Deciding if you need a doctor</td><td class="n">No, not its job</td><td class="y">When in doubt, go</td></tr>
+<tr><td>Want a diagnosis</td><td class="n">No, dangerous</td><td class="y">Required</td></tr>
+<tr><td>Want a treatment recommendation</td><td class="n">No, dangerous</td><td class="y">Required</td></tr>
+<tr><td>Understand a diagnosed condition</td><td class="y">Yes, excellent</td><td>Follow your plan</td></tr>
+<tr><td>Understand a prescribed medication</td><td class="y">Yes, excellent</td><td>Follow your plan</td></tr>
+<tr><td>Understand test results</td><td class="y">Yes, good</td><td>Discuss with doctor</td></tr>
+<tr><td>Didn't understand instructions</td><td class="y">Yes, excellent</td><td>Call if still unclear</td></tr>
+<tr><td>General health education</td><td class="y">Yes, excellent</td><td>Not needed</td></tr>
+<tr><td>Preparing for an appointment</td><td class="y">Yes, excellent</td><td>Keep the appointment</td></tr>
+</table>
+
+<h2 class="sec">A few special cases</h2>
+<p><b>"AI said it is probably nothing."</b> That is not a green light to skip the doctor. Its reassurance is a statistical guess from a text description, missing your exam and your risk factors. If you are worried, go.</p>
+<p><b>"AI gave me a diagnosis."</b> AI diagnoses are not reliable; it cannot examine you, run tests, or distinguish similar conditions. Confirm with a real evaluation.</p>
+<p><b>"AI said I do not need a doctor."</b> It cannot make that call; it does not know your history, your risk, or how sick you look. If you are considering going, default to going.</p>
+<p><b>"Can I ask AI if this is an emergency?"</b> No. If you are worried enough to ask, call 911.</p>
+
+<div class="kicker">Still unsure? "Would I be comfortable with AI making this decision for my child or my parent?" If no, see a doctor.</div>
 
 </main>
 </div>
