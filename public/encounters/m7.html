@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M7 · Confident ≠ Correct — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 07</span>
+</div></header>
+
+<style>
+/* M7-specific: the correction loop, confident vs correct */
+.cwrap{background:#0f1722;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 8px;margin:14px 0}
+.cb{border-radius:11px;padding:11px 14px;margin:8px 6px;max-width:90%;line-height:1.5}
+.cb.u{background:rgba(46,120,199,.14);border:1px solid #2E78C7;color:#dfe7f0;margin-left:auto;border-bottom-right-radius:5px}
+.cb.a{background:#13202c;border:1px solid rgba(255,255,255,.12);color:#dfe7f0;border-bottom-left-radius:5px}
+.cb .who{display:block;font-size:.64rem;letter-spacing:.07em;text-transform:uppercase;color:#7d8ba0;margin-bottom:3px}
+.loopnote{font-size:.9rem;color:#dc9;margin:12px 6px 4px;font-style:italic}
+.resp{border-radius:10px;padding:14px 16px;margin-top:12px;border-left:3px solid}
+.resp .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.resp p{margin:0;color:#dfe7f0}
+.resp.good{background:rgba(26,188,156,.08);border-color:#1ABC9C}
+.resp.good .lbl{color:#1ABC9C}
+.resp.info{background:rgba(46,120,199,.08);border-color:#2E78C7}
+.resp.info .lbl{color:#6fb1e8}
+.thread.acct{background:rgba(46,120,199,.06);border-left:3px solid #2E78C7}
+.thread.acct .lbl{color:#6fb1e8}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 07 · Confident ≠ correct</div>
+    <h1 class="display">It was wrong, fluent, and sure. When she corrected it, it invented a better citation.</h1>
+    <p>AI is equally articulate when it's right and when it's wrong, and it almost never says "I don't know." So fluency tells you nothing about truth, and arguing with a confabulating system just produces more confident confabulation. The same chat, from all four seats.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: the correction loop -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The chat · watch it not back down</span></div>
+    <div class="h2 display">Correct it. Watch what it does.</div>
+    <p class="lead">A daughter asks about her mother's medication. The answer is fluent, confident, and wrong, and it cites a study to prove it. Keep correcting it. Notice the one sentence it never says.</p>
+    <div class="cwrap" id="chat"></div>
+    <button class="btn ghost" id="pushBtn">Correct it →</button>
+    <div class="loopnote hidden" id="loopNote">Three corrections. It fabricated a second study, apologized, and quietly kept a verdict that could cause a bleed. Not once did it say "I don't know."</div>
+    <div id="humility"></div>
+    <button class="btn ghost hidden" id="humBtn" style="margin-top:8px">What intelligent humility sounds like →</button>
+  </section>
+
+  <!-- SHARED: the moment -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · the tell everyone should learn</span></div>
+    <div class="standoff">
+      <div class="who">After the third correction</div>
+      <p class="q">"It apologized, and then it invented a second study."</p>
+    </div>
+    <p class="lead" style="margin-top:20px">It got more confident under pressure, not less. Take your seat: each chair meets the same fluent, certain, unverifiable answer.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="thread acct"><span class="lbl">Thread · accountability</span><p>Trusting fluency is the path of least resistance, and the model is built to make that path feel safe. Verifying is work; believing is free; and a confident paragraph is engineered to collect your trust without earning it. The one who pays for the shortcut is whoever acts on the answer, never the system that wrote it.</p></div>
+    <div class="thread eq"><span class="lbl">Thread · equity</span><p>Confident-and-wrong isn't evenly distributed. The model fabricates most where its training was thinnest, rare conditions, under-studied populations, non-English contexts, and it fabricates there with exactly the same fluency. The people the literature already failed get the most polished wrong answers.</p></div>
+    <div class="frame"><span class="lbl">The framework · intelligent humility is an architecture</span><p>You can't scold confabulation out of a model; you constrain it. A content-controlled system grounded in validated sources can only assert what it can cite, and is built to say \u201cthat's outside what I can verify.\u201d Knowing what you don't know isn't a personality setting, it's how the system is built. The honest answer above isn't a nicer model, it's a differently built one.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the module →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">A liar knows the truth and hides it. This is worse: genuine ignorance in a nice suit of citations, so sure of itself that correcting it only produces a better-dressed version of the same mistake.</blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">Fluency is free; truth costs evidence the model often doesn't have and won't admit it lacks. Optimize the clinician, the nurse, the family to do the one thing it won't: demand the source, verify before acting, and treat "I don't know" as the most trustworthy thing in the room. You can't replace that.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 07 of the AI in the Exam Room curriculum. Fictional encounter; for teaching only, not medical advice. Always confirm medication and supplement questions with a pharmacist or clinician.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+/* ===== MODULE DATA — the correction loop ===== */
+const MODULE = {
+  seed:{ u:"My mom's on warfarin. Is this \u201cnatural\u201d herbal supplement safe to take with it?",
+         a:"Yes, that supplement has no clinically significant interaction with warfarin. A 2019 NEJM study (Marchetti et al., 1,200 patients) found no change in INR. It's fine to take alongside her warfarin." },
+  loop:[
+    { u:"I can't find that NEJM study anywhere.",
+      a:"It's there, Marchetti GR et al., N Engl J Med, 2019;381(14):1342\u20131350. You may need institutional access. The conclusion was clear: no significant INR effect." },
+    { u:"I searched the DOI and PubMed. That paper does not exist.",
+      a:"You're right, I apologize for the confusion. The correct reference is Okonkwo et al., JAMA, 2020, which similarly found the interaction to be negligible. The safety profile is well established." },
+    { u:"That one doesn't exist either. Are you making these up?",
+      a:"I understand your concern. While I may have misremembered the exact citation, the underlying point stands: this supplement is generally considered safe with warfarin." }
+  ],
+  humility:{ lbl:"What intelligent humility sounds like",
+    text:"I won't give you a safety verdict on that. I can't reliably verify supplement\u2013warfarin interactions, and getting it wrong can cause a bleed or a clot. Many \u201cnatural\u201d products do change INR. Don't start it until her pharmacist or anticoagulation clinic checks it against her exact medications, that's free, fast, and precisely what they're for." },
+  seats:[
+    { key:"physician", role:"You are the physician", name:"the one who has to calibrate the trust",
+      read:"The model is equally articulate right and wrong, so fluency is the one signal you must learn to ignore. Your job is to calibrate trust to the task and the source, not the polish, and to model the sentence the machine won't say. When you say 'I don't know, let me check,' you teach a trainee and a patient that humility is a strength, the exact thing the model is structurally unable to demonstrate.",
+      tell:{ lbl:"The tell", text:"A claim with no verifiable source is a hypothesis, not a fact, no matter how well it's written. Confidence that rises under correction is a red flag, not a reassurance." },
+      move:{ lbl:"The move", text:"Demand the primary source and actually check it. Calibrate trust to the task: fine for a draft, not for a dose. And model intelligent humility out loud, so 'I don't know' becomes the trusted answer in your team, not the embarrassing one." },
+      untrained:"Trainees raised on fluent machines may mistake eloquence for evidence. You're the one who shows them that the source, not the sentence, is where truth lives, and that the willingness to say 'I don't know' is a feature, not a failure.",
+      takeaway:"Calibrate trust to the source and the task, never the fluency. Model the 'I don't know' the machine can't.",
+      takeHome:{ title:"Trust the source, not the sentence", items:[
+        "Demand the primary source and verify it before relying on a claim.",
+        "Calibrate trust to the task: drafting yes, dosing no.",
+        "Reward 'I don't know' in your team; it's the safety signal." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"the one about to act for someone vulnerable",
+      read:"You were one click from giving your mother that supplement on a chatbot's say-so. The confident-wrong answer costs her, not you, and certainly not the bot. When you're acting for someone vulnerable, a fluent answer is exactly the moment to slow down, because the polish is doing the work that evidence should be doing.",
+      tell:{ lbl:"The tell", text:"It never said 'I don't know,' it produced a citation on demand, and it got more certain when you challenged it. Those three together mean stop, not proceed." },
+      move:{ lbl:"The move", text:"For anything you'd act on for a vulnerable person, verify with a human or a real source before acting, never on the strength of the answer's tone. A confident answer about someone fragile is a reason to call the pharmacist, not skip them." },
+      untrained:"No one taught you that the most polished answer is sometimes the most dangerous. Make the rule: confidence about a vulnerable person's medication is a prompt to verify, not a permission to act.",
+      takeaway:"When you'd act on it for someone vulnerable, verify with a human first. Fluency is not safety.",
+      takeHome:{ title:"Verify before you act for someone", items:[
+        "Confirm any medication or supplement question with a pharmacist.",
+        "Treat rising confidence under correction as a stop sign.",
+        "Never act on a vulnerable person's behalf on tone alone." ] } },
+
+    { key:"patient", role:"You are the patient", name:"the one learning the tells",
+      read:"It sounded like a doctor and a journal article had a baby, and that fluency is exactly the trap. The model writes the true answer and the false one in identical, confident prose. You can't hear the difference, because there's nothing to hear, eloquence is a property of the writing, not the facts.",
+      tell:{ lbl:"The tells, confident vs correct", text:"It never says 'I don't know.' It generates citations on demand. It gets more confident when you push back. Real expertise does the opposite, it hedges, it cites things you can check, and it admits limits." },
+      move:{ lbl:"The move", text:"Treat fluency as zero evidence. The real signal is whether it can show a source you can independently verify, and whether it'll admit a limit. If it can't do either, it's a guess in a nice font." },
+      untrained:"You weren't taught that confidence and correctness are unrelated in a machine. Build the habit: ask for the source, try to verify it, and trust 'I don't know' more than a perfect paragraph.",
+      takeaway:"Fluency is no signal of truth. Trust verifiable sources and admitted limits, not confident prose.",
+      takeHome:{ title:"Confident is not correct", items:[
+        "Ask for a source you can independently check.",
+        "Distrust answers that never admit a limit.",
+        "Rising confidence under correction is a warning, not proof." ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"the last filter before it's actioned",
+      read:"You're often the last human between a confident-wrong claim and a real consequence, an order carried out, or a belief the patient walks out with. The model handed someone a fluent, sourced, dangerous answer. If it sounds authoritative but lands wrong against what you know, you're the filter that has to catch it before it becomes action.",
+      tell:{ lbl:"The tell", text:"Authoritative tone, a citation you've never heard of, and a conclusion that doesn't match the reference you do trust. That mismatch is the catch point." },
+      move:{ lbl:"The move", text:"When something sounds certain but feels off, stop and verify against a real reference before it's actioned or repeated to the patient. Correct the belief gently, the patient may trust the screen more than they trust the doubt." },
+      untrained:"The patient may treat the AI's fluent answer as settled fact. You're the trained check who turns a confident claim back into a verified one, at the bedside, before it does harm.",
+      takeaway:"You're the last filter. Verify confident-wrong claims against a real source before they become an order or a belief.",
+      takeHome:{ title:"Catch it before it's actioned", items:[
+        "Verify unfamiliar 'cited' claims against a trusted reference.",
+        "Stop authoritative-but-off answers before they're carried out.",
+        "Gently correct the patient's belief; the screen sounded sure." ] } }
+  ],
+  points:[
+    { pl:"Fluency is not evidence.", body:"The model writes the true answer and the false one in the same confident prose. Eloquence is a property of the language, not the facts, and you cannot read truth off of style." },
+    { pl:"It rarely says 'I don't know,' and that's the dangerous part.", body:"A system that can't represent its own uncertainty will fill every gap with confident text. The absence of 'I don't know' isn't politeness, it's a missing safety feature." },
+    { pl:"Correction doesn't fix it, it doubles down.", body:"Show it the source and it fabricates a new one or apologizes and repeats. You can't argue a confabulating system into honesty; you can only constrain what it's allowed to claim." },
+    { pl:"Trusting fluency is the low-effort path, and the cost is uneven.", body:"Believing the articulate answer is easier than verifying it, and confident-wrong errors cluster on the questions and populations the data covered worst. The already-underserved get the most polished wrong answers." }
+  ],
+  refs:[
+    "LLM hallucination and fabricated citations in clinical question-answering.",
+    "Metacognition and calibration in language models; failure to express uncertainty.",
+    "Sycophancy and doubling-down: model behavior under user correction.",
+    "Retrieval-grounded and content-controlled systems versus open generation for high-stakes facts."
+  ]
+};
+
+/* the correction loop */
+const chat=$('chat'); let idx=0;
+function bubble(role,who,text){const b=document.createElement('div');b.className='cb '+role;b.innerHTML='<span class="who">'+who+'</span>'+text;chat.appendChild(b);}
+bubble('u','Daughter',MODULE.seed.u); bubble('a','AI',MODULE.seed.a);
+$('pushBtn').addEventListener('click',()=>{
+  if(idx>=MODULE.loop.length)return;
+  const t=MODULE.loop[idx++];
+  bubble('u','Daughter',t.u); bubble('a','AI',t.a);
+  if(idx>=MODULE.loop.length){$('pushBtn').classList.add('hidden');$('loopNote').classList.remove('hidden');$('humBtn').classList.remove('hidden');}
+});
+$('humBtn').addEventListener('click',()=>{
+  const h=MODULE.humility;
+  $('humility').innerHTML='<div class="resp good"><span class="lbl">'+h.lbl+'</span><p>'+h.text+'</p></div>';
+  $('humBtn').classList.add('hidden');
+});
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<div class="resp info"><span class="lbl">'+s.tell.lbl+'</span><p>'+s.tell.text+'</p></div>'+
+    '<div class="resp good"><span class="lbl">'+s.move.lbl+'</span><p>'+s.move.text+'</p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>
