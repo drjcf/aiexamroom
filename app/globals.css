@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --brand-teal: #16A085;
+  --brand-teal-light: #1ABC9C;
+  --brand-blue: #0A4D8C;
+  --brand-blue-light: #2E78C7;
+  --brand-orange: #E67E22;
+  --brand-green: #27AE60;
+  --brand-red: #C0392B;
+  --ink: #070b14;
+  --ink-1: #0d1422;
+  --paper: #eef2f6;
+  --muted: #8a99ad;
+  --line: rgba(255,255,255,0.09);
+}
+
+html, body { height: 100%; }
+body {
+  background-color: var(--ink);
+  color: #c5d0de;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+  letter-spacing: 0.005em;
+}
+
+/* Atmosphere: faint clinical dot-grid + a soft teal/blue glow up top + film grain. */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.030) 1px, transparent 1px),
+    radial-gradient(120% 80% at 50% -10%, rgba(22,160,133,0.10), transparent 60%),
+    radial-gradient(90% 60% at 85% 0%, rgba(46,120,199,0.08), transparent 55%);
+  background-size: 22px 22px, 100% 100%, 100% 100%;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.display { font-family: var(--font-display), Georgia, serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.05; }
+.eyebrow { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand-teal-light); font-weight: 500; }
+
+/* Orchestrated load: staggered rise. */
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.rise { opacity: 0; animation: rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
+.d1 { animation-delay: .05s; } .d2 { animation-delay: .14s; } .d3 { animation-delay: .23s; }
+.d4 { animation-delay: .32s; } .d5 { animation-delay: .41s; } .d6 { animation-delay: .50s; }
+@media (prefers-reduced-motion: reduce) { .rise { animation: none; opacity: 1; } .ecg-path { stroke-dashoffset: 0 !important; animation: none !important; } }
+
+/* ECG signature */
+@keyframes ecg-draw { to { stroke-dashoffset: 0; } }
+@keyframes ecg-glow { 0%,100% { opacity: .85; } 50% { opacity: 1; } }
+.ecg-path { stroke-dasharray: 100; stroke-dashoffset: 100; animation: ecg-draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards, ecg-glow 3s ease-in-out 3s infinite; }
+
+/* Editorial role index */
+.role-row { border-top: 1px solid var(--line); transition: background-color .2s ease, padding-left .2s ease; }
+.role-row:last-child { border-bottom: 1px solid var(--line); }
+.role-row:hover { background: rgba(22,160,133,0.06); padding-left: 8px; }
+.role-num { font-family: var(--font-display), serif; color: var(--brand-teal); }
+
+/* ---- Global classes the LMS expects the host to provide ---- */
+.glass { background-color: rgba(255,255,255,0.04); border: 1px solid var(--line); backdrop-filter: blur(8px); }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background-color: var(--brand-teal); color: #04140f;
+  padding: 0.6rem 1.15rem; border-radius: 0.55rem; font-weight: 600;
+  border: 0; cursor: pointer; transition: background-color .15s ease, transform .15s ease;
+}
+.btn-primary:hover { background-color: var(--brand-teal-light); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px; padding: 0.6rem 1.1rem;
+  border-radius: 0.55rem; border: 1px solid var(--line); color: #c5d0de; transition: border-color .15s, color .15s;
+}
+.btn-ghost:hover { border-color: var(--brand-teal); color: #fff; }
+.input-base { background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 0.5rem; padding: 0.5rem 0.75rem; color: #e2e8f0; }
+.input-base::placeholder { color: #5f6f83; }
+.input-base:focus { outline: none; border-color: var(--brand-teal); box-shadow: 0 0 0 2px rgba(22,160,133,.30); }
+@keyframes pulse-slow { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+.animate-pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
+
+/* ---- Accent retune: indigo -> brand blue, cyan/emerald -> brand teal ---- */
+.text-indigo-400 { color: var(--brand-blue-light) !important; }
+.border-indigo-400, .border-indigo-500 { border-color: var(--brand-blue-light) !important; }
+.bg-indigo-500\/20 { background-color: rgba(46,120,199,0.18) !important; }
+.text-cyan-400, .text-emerald-400 { color: var(--brand-teal-light) !important; }
+
+/* ---- Semantic lesson callouts ---- */
+.callout { border-left: 3px solid var(--brand-teal); background: rgba(255,255,255,0.03); border-radius: 0 0.5rem 0.5rem 0; padding: 0.85rem 1.1rem; margin: 1.25rem 0; }
+.callout .callout-label { font-family: var(--font-body); font-weight: 600; font-size: 0.72rem; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.callout > :first-child + * { margin-top: 0; }
+.callout-success { border-left-color: var(--brand-green); } .callout-success .callout-label { color: #4ade80; }
+.callout-danger  { border-left-color: var(--brand-red); }  .callout-danger .callout-label { color: #f87171; }
+.callout-teal    { border-left-color: var(--brand-teal); background: rgba(22,160,133,0.07); } .callout-teal .callout-label { color: var(--brand-teal-light); }
+.callout-info    { border-left-color: var(--brand-blue-light); } .callout-info .callout-label { color: var(--brand-blue-light); }
+.callout-amber   { border-left-color: var(--brand-orange); } .callout-amber .callout-label { color: var(--brand-orange); }
+.callout-outcome { border-left-color: var(--brand-teal); background: rgba(22,160,133,0.10); } .callout-outcome .callout-label { color: var(--brand-teal-light); }

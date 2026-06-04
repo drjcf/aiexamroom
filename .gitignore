@@ -1,0 +1,8 @@
+node_modules
+.next
+out
+.env*.local
+*-debug.log
+firebase-debug.*.log
+serviceAccount*.json
+.firebase

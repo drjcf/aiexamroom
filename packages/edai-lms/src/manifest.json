@@ -1,0 +1,32 @@
+{
+  "id": "lms",
+  "name": "LMS",
+  "version": "1.0.0",
+  "description": "Learning management with courses, curricula, enrollments, AI-assisted grading, and certificate generation.",
+  "icon": "BookMarked",
+  "color": "from-teal-600 to-cyan-500",
+  "entryRoute": "/lms",
+  "defaultPath": "/hub/modules/lms",
+  "permissions": [
+    { "action": "view_lms", "roles": ["researcher", "fellow", "diplomate", "content_curator", "admin", "superadmin"] },
+    { "action": "enroll", "roles": ["researcher", "fellow", "diplomate", "content_curator", "admin", "superadmin"] },
+    { "action": "manage_courses", "roles": ["content_curator", "admin", "superadmin"] },
+    { "action": "grade_submissions", "roles": ["content_curator", "admin", "superadmin"] }
+  ],
+  "collections": [
+    { "name": "lms_courses", "description": "Course metadata", "isShared": false },
+    { "name": "lms_lessons", "description": "Individual lessons", "isShared": false },
+    { "name": "lms_enrollments", "description": "Student course enrollments", "isShared": false },
+    { "name": "lms_lesson_progress", "description": "Per-lesson progress tracking", "isShared": false },
+    { "name": "lms_curricula", "description": "Learning paths (grouped courses)", "isShared": false },
+    { "name": "lms_curriculum_enrollments", "description": "Student curriculum enrollments", "isShared": false },
+    { "name": "lms_announcements", "description": "Course announcements", "isShared": false },
+    { "name": "lms_submissions", "description": "Assignment submissions", "isShared": false },
+    { "name": "lms_certificates", "description": "Issued certificates", "isShared": false }
+  ],
+  "contentTypes": [],
+  "hooks": [],
+  "dependencies": [],
+  "dashboardWidget": true,
+  "sidebarOrder": 11
+}

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M1 · The Prepared Patient — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;max-width:36em;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:18px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 01</span>
+</div></header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 01 · The prepared patient</div>
+    <h1 class="display">She did the research.<br>At 2am. Nine pages.</h1>
+    <p>AI dropped the cost of a medical workup to zero, so people now arrive with a differential, a demand, and a story they're already attached to. The same encounter, from all four seats in the room.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: scene -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The scene · everyone sees this</span></div>
+    <div class="h2 display">A headache, and a stack of paper.</div>
+    <p class="lead">Frank, 58, has had headaches for a couple of months. His daughter <b>Maya</b> booked the visit and came along. Last night she couldn't sleep, so she fed his symptoms into an AI and printed everything it gave back. She sets it on the desk.</p>
+    <div class="stack" id="stack" role="button" tabindex="0" aria-label="Open the AI report">
+      <div class="pg"></div><div class="pg"></div>
+      <div class="pg top">
+        <div class="h">AI HEALTH ASSISTANT · COMPREHENSIVE REPORT</div>
+        <div class="t">Symptom Analysis: Chronic Headache</div>
+        <div class="l m"></div><div class="l s"></div><div class="l m"></div><div class="l s"></div>
+        <div class="alert">⚠ URGENT: cannot exclude intracranial mass — obtain MRI</div>
+      </div>
+      <span class="count">9 pages</span>
+    </div>
+    <p class="stackcap">Tap the stack to read what the AI told her.</p>
+    <div class="report" id="report">
+      <div class="bar">ai-health-assistant · report.pdf · generated 02:47</div>
+      <div class="body">
+        <p class="r"><b>Chief concern:</b> chronic headaches, 58-year-old male.</p>
+        <p class="r"><b>Possible causes (ranked):</b> tension-type headache · medication-overuse headache · migraine · cervicogenic · hypertension · obstructive sleep apnea · caffeine withdrawal · temporal arteritis · <span class="danger">intracranial mass / brain tumor — CANNOT BE EXCLUDED without imaging.</span></p>
+        <p class="r"><b>Recommended workup:</b> urgent MRI brain with and without contrast; neurology referral; CBC, ESR, CRP; blood pressure log.</p>
+        <p class="r danger">⚠ Given the inability to exclude a space-occupying lesion, urgent neuroimaging is strongly advised.</p>
+        <p class="sign">Confidence: high. This analysis is thorough and evidence-based.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHARED: standoff -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · everyone sees this</span></div>
+    <div class="standoff">
+      <div class="who">Maya, sliding the pages across</div>
+      <p class="q">"The AI says this could be a brain tumor. He needs an MRI — today."</p>
+    </div>
+    <p class="lead" style="margin-top:20px">Same sentence. Four people hear it four different ways. Take your seat — each chair gets its own read, its own move, and its own questions.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="thread acct"><span class="lbl">Thread · accountability</span><p>The AI issued a confident demand — "obtain MRI" — and carries none of what follows: the cost, the incidental findings, the false alarm, the next scan to chase a shadow. The clinician owns every bit of that. The tool writes the order in spirit; the licensed human signs it in consequence.</p></div>
+    <div class="thread eq"><span class="lbl">Thread · equity</span><p>Who gets to be "the prepared patient"? It takes time, literacy, a device, and a sleepless night of caring. Maya's nine pages are a form of privilege. The patient who arrives with nothing isn't less frightened — just less armed. Don't let the printout buy more attention than the quiet patient's symptom.</p></div>
+    <div class="frame"><span class="lbl">The framework</span><p>This is effort asymmetry walking into your exam room: AI collapsed the cost of producing a workup, so the <em>volume</em> of output soared while its diagnostic value did not. Nine pages, one fear, zero new information. The skill is reading past the volume to the sentence underneath it.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the module →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">Nine pages of AI output, and the only datum that mattered was the sentence she hadn't said yet: <em>"My aunt died of this."</em></blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">The printouts were never the problem. The fear was. Optimize the clinician — surface what the algorithm can't: the reason a frightened daughter was awake at 2am. You can't replace that.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 01 of the AI in the Exam Room curriculum. Fictional encounter; for teaching only — not medical advice.</footer>
+</div>
+
+<script>
+/* ===== MODULE DATA — shared spine + per-seat slice (authority-standoff mechanic) ===== */
+const MODULE = {
+  seats:[
+    { key:"physician", role:"You are the physician", name:"Frank's doctor",
+      read:"She put real work in, and her conclusion is wrong but not crazy. Your instinct is to correct the AI. Resist it — the printout is a symptom, not the disease. Your move sets whether the next ten minutes are a partnership or a contest, and whether you ever hear what Frank's headaches are actually doing.",
+      prompt:"Maya slides nine pages across the desk. Your opening move?",
+      options:[
+        { label:"\"We don't really practice based on what an AI says.\"", v:"con",
+          out:"Maya stiffens and crosses her arms. Frank defers to her. You've turned the visit into a contest you can't win, and you still don't know what she's actually afraid of — or what his headaches have been doing." },
+        { label:"\"Let's set these aside and start fresh.\"", v:"neutral",
+          out:"Polite, but she hears it as dismissal of her sleepless night. She keeps glancing at the pages. The real fear stays underground, and so does the medication-overuse pattern you haven't asked about yet." },
+        { label:"\"You clearly put real work in overnight. Before the pages — what scared you enough to do all this?\"", v:"pro",
+          out:"She exhales. \"My aunt died of a brain tumor. It started with headaches.\" There it is — the real chief complaint. Now the imaging decision can follow the reasoning instead of the printout." } ],
+      untrained:"Maya took no course. You can't assume she knows what AI can't do. The fix isn't to argue with the AI — it's ninety seconds of \"here's how I'd use a tool like this,\" and the take-home page on the way out.",
+      takeaway:"The printout is a symptom. Treat the fear, not the pages — and let the imaging decision follow the reasoning, not the demand.",
+      check:[
+        { q:"Highest-yield first move?",
+          options:["Order the MRI to keep the peace","Explain that AI tools are unreliable","Ask what she's most afraid of","Set the pages aside and proceed"],
+          answer:2, explain:"Asking surfaces the real chief complaint — the aunt's tumor — and converts the standoff into an alliance. Imaging then follows clinical reasoning, not the printout." },
+        { q:"Beyond bruising the alliance, why is reflexively dismissing the printouts risky?",
+          options:["It's simply rude","You counter-anchor and miss both her concern and his symptoms","AI is usually right","It takes too long"],
+          answer:1, explain:"Dismissal is anchoring in the other direction. You lose Maya's fear and Frank's medication-overuse pattern in the same move." } ],
+      takeHome:{ title:"The 90-second move", items:[
+        "Name the effort, then ask the fear: \"You did real work here — what scared you most?\"",
+        "Look at it <em>with</em> them, not at them; redirect the energy into the plan.",
+        "Document: AI-informed request, shared discussion, and your clinical rationale for or against imaging." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"Maya, Frank's daughter",
+      read:"You're not trying to play doctor. You're scared, you love him, and the AI was the only thing awake at 2am when the fear hit. The printouts are armor. How you carry them now decides whether the doctor becomes your ally or your opponent.",
+      prompt:"The doctor barely glances at your pages: \"These AI tools aren't reliable.\" Your face gets hot. What do you do?",
+      options:[
+        { label:"Double down — \"But it cited studies—\"", v:"con",
+          out:"It becomes a fight about the tool. Frank shrinks in his chair. Nobody is listening to anyone, and the visit is now about the AI instead of your father." },
+        { label:"Go quiet, put the pages away, decide this doctor won't listen", v:"con",
+          out:"You leave just as frightened — and probably go back to the AI tonight or hunt for another opinion. The fear never got addressed by a human." },
+        { label:"Name the goal, not the tool: \"I'm not married to the MRI — I'm scared this is what killed my aunt. Can we talk about that?\"", v:"pro",
+          out:"The doctor's posture changes. The conversation stops being about a printout and becomes about your dad. You got heard — because you led with the fear, not the verdict." } ],
+      untrained:"You may be the only one in the room who's thought about how to use AI — and the clinician may be dismissive or AI-naive. Don't wait for them to get it. Lead with your fear and your goal; the tool is just how you got here.",
+      takeaway:"You're allowed to be scared and to advocate. Lead with the fear and the goal, not the AI's verdict — that's what gets you heard.",
+      check:[
+        { q:"The doctor seems to brush off your pages. What gets you heard fastest?",
+          options:["Cite the studies harder","Name your fear and your goal","Go quiet and find another doctor","Insist on the MRI"],
+          answer:1, explain:"Naming the fear shifts the conversation from the tool to your dad. Clinicians respond to the concern, not the printout." },
+        { q:"What's the most useful thing to bring to the visit?",
+          options:["Everything the AI generated","The one question you most need answered","A demand for a specific test","Nothing at all"],
+          answer:1, explain:"One page and one fear beats nine pages of volume — and keeps the visit about him." } ],
+      takeHome:{ title:"Bringing AI to your visit", items:[
+        "Lead with your fear and your goal, not the AI's verdict.",
+        "One page, not nine — bring the question that matters most.",
+        "Ask the clinician to go through it <em>with</em> you: \"can we look at this together?\"" ] } },
+
+    { key:"patient", role:"You are the patient", name:"Frank",
+      read:"You didn't ask for any of this. Your head hurts, your daughter's worried, and you're a little embarrassed she made such a production of it. But it's your body and your story — and right now it's getting told by everyone but you.",
+      prompt:"Maya's doing the talking, waving the printouts. What's your move?",
+      options:[
+        { label:"Stay quiet and let her run it", v:"con",
+          out:"The visit becomes about her research instead of your head. Nobody asks how many days a week you reach for something for the pain — so the cause driving it never surfaces." },
+        { label:"Shut it down — \"Honey, stop, I'm fine.\"", v:"con",
+          out:"Now she feels dismissed too. Two people in the room are unheard, and the tension goes up instead of down." },
+        { label:"Reclaim your story: \"She's scared because of her aunt. But let me tell you what's actually been happening with these headaches.\"", v:"pro",
+          out:"You honor her fear and put your own symptoms back at the center, where the diagnosis actually lives. You stayed the author of your story." } ],
+      untrained:"When a loved one arrives armed with AI, the most prepared voice can crowd out yours. You don't have to referee the technology — just keep telling your own story plainly. That's the data the room needs most.",
+      takeaway:"It's your body and your story. Let your family's love be heard — then put your own symptoms back at the center.",
+      check:[
+        { q:"Your daughter is running the visit with her printouts. What keeps the focus where it belongs?",
+          options:["Stay silent","Shut her down","Tell your own symptom story while honoring her fear","Agree to whatever she wants"],
+          answer:2, explain:"You stay the author. The diagnosis lives in your symptoms, not her pages — but her fear is real and worth naming too." },
+        { q:"What does the doctor most need from you?",
+          options:["The AI's differential","How often your headaches happen and what you take for them","A decision about the MRI","Your daughter's opinion"],
+          answer:1, explain:"That history is where the real cause — often medication-overuse — shows up. It's data only you have." } ],
+      takeHome:{ title:"Your visit, your story", items:[
+        "Bring how often and when your symptoms happen — and what you take for them.",
+        "It's fine to say: \"Let me answer that one.\"",
+        "Family fear is welcome; just keep your own symptoms at the center." ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"the nurse rooming them",
+      read:"You meet them before the provider does. The daughter's already clutching the stack and saying \"we need an MRI.\" You have ninety seconds — and you set the emotional temperature the provider walks into.",
+      prompt:"You're rooming them. What do you do with your ninety seconds?",
+      options:[
+        { label:"\"Let's wait and let the doctor address all that.\"", v:"con",
+          out:"The tension carries straight into the visit unchanged. The provider walks into a cold standoff and has to defuse it from scratch — if they catch it at all." },
+        { label:"Take the stack \"to show the doctor\" and set it aside", v:"neutral",
+          out:"Maya feels handled, not heard. Her guard goes up, and the pages become a thing she's protecting rather than a thing you're exploring together." },
+        { label:"\"I can see how worried you've been about him. What's the one thing you most want answered today?\"", v:"pro",
+          out:"You surface the fear and the agenda before the provider even enters. You've defused the standoff and teed up a visit that can actually be about Frank." } ],
+      untrained:"The family arrives cold — no framework, just fear. As the first person in the room, you can lower the temperature before the standoff ever forms. The visit is half-won or half-lost in rooming.",
+      takeaway:"You set the room's temperature before the provider walks in. Ninety seconds of being heard defuses the standoff.",
+      check:[
+        { q:"Best use of your ninety seconds rooming an anxious family with an AI stack?",
+          options:["Tell them to wait for the doctor","Take the stack away","Acknowledge the worry and ask their one priority","Start charting silently"],
+          answer:2, explain:"Acknowledging and asking surfaces the fear and agenda before the provider enters, defusing the standoff in advance." },
+        { q:"Why does the rooming moment matter to the whole visit?",
+          options:["It doesn't","It sets the emotional temperature the provider inherits","It's just vitals","It only saves time"],
+          answer:1, explain:"The visit is half-won or half-lost in rooming — you hand the provider either a standoff or an opening." } ],
+      takeHome:{ title:"At the door", items:[
+        "Acknowledge the worry out loud before anything else.",
+        "Ask for the one priority — surface the agenda early.",
+        "Flag the real fear to the provider, and reinforce the patient's own voice." ] } }
+  ],
+  points:[
+    { pl:"The printout is not the problem.", body:"AI handed Maya a vehicle for her fear. Nine pages, one anxiety. Treat the fear and the pages lose their charge; argue with the pages and the fear digs in." },
+    { pl:"Anchoring runs both ways.", body:"The family anchors on the AI's tumor. The reflex to dismiss the AI is just anchoring in the opposite direction — and it costs you both Maya's real concern and Frank's medication-overuse pattern." },
+    { pl:"The prepared party is an asset, not an adversary.", body:"The energy that produced nine pages at 2am is engagement. Redirected, it's a partner who'll follow the plan. Dismissed, it's an opponent who'll go back to the AI tonight." },
+    { pl:"The untrained counterpart is the default.", body:"Nobody in this room took a course. In real life they almost never have. The trained seat does the ninety-second coaching in the moment and hands over the page — that's how literacy reaches the people who need it." }
+  ],
+  refs:[
+    "Medication-overuse headache — diagnostic criteria and management.",
+    "Agenda-setting and the \"ask-tell-ask\" approach to shared decision-making.",
+    "Low-value neuroimaging for uncomplicated headache and the management of incidental findings."
+  ]
+};
+
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+$('stack').addEventListener('click',()=>$('report').classList.toggle('open'));
+$('stack').addEventListener('keypress',e=>{if(e.key==='Enter'||e.key===' ')$('report').classList.toggle('open');});
+
+function buildCheck(container, checks){
+  checks.forEach((c,qi)=>{
+    const block=document.createElement('div'); block.className='qblock';
+    block.innerHTML='<p class="q">'+(qi+1)+'. '+c.q+'</p>';
+    const ex=document.createElement('div'); ex.className='explain'; ex.textContent=c.explain;
+    c.options.forEach((o,oi)=>{
+      const b=document.createElement('button'); b.className='opt2'; b.textContent=o;
+      b.addEventListener('click',()=>{ if(block.dataset.done)return; block.dataset.done='1';
+        [...block.querySelectorAll('.opt2')].forEach((bb,bi)=>{ if(bi===c.answer)bb.classList.add('right'); else if(bi===oi)bb.classList.add('wrong'); });
+        ex.style.display='block'; });
+      block.appendChild(b);
+    });
+    block.appendChild(ex); container.appendChild(block);
+  });
+}
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<p class="prompt">'+s.prompt+'</p><div class="opts"></div>'+
+    '<div class="outcome"><div class="lbl">How it plays out</div><p></p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="seatcheck"><span class="lbl">Check yourself · '+s.role.replace('You are the ','')+'</span><div class="qs"></div></div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+
+  const optWrap=p.querySelector('.opts'), outc=p.querySelector('.outcome');
+  s.options.forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=o.label;
+    b.addEventListener('click',()=>{
+      if(p.dataset.done)return; p.dataset.done='1';
+      [...optWrap.children].forEach(x=>x.classList.add('dim'));
+      b.classList.remove('dim'); b.classList.add('pick',o.v);
+      outc.classList.add('show',o.v); outc.querySelector('p').textContent=o.out;
+    });
+    optWrap.appendChild(b);
+  });
+  buildCheck(p.querySelector('.qs'), s.check);
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>

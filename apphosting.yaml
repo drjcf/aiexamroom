@@ -1,0 +1,40 @@
+# Firebase App Hosting backend config.
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+# The Firebase WEB config is a PUBLIC client identifier (safe to commit) — not a
+# secret. NEXT_PUBLIC_ + BUILD availability is what inlines it into the browser
+# bundle. Fill from: Firebase console > Project settings > Your apps > Web config.
+# (App Hosting also injects FIREBASE_WEBAPP_CONFIG for server SDKs, but client
+#  auth needs these NEXT_PUBLIC_ values present at build.)
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "REPLACE_WITH_WEB_API_KEY"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "aiexamroom.firebaseapp.com"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "aiexamroom"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "REPLACE_WITH_APP_ID"
+    availability:
+      - BUILD
+      - RUNTIME
+  # Newer projects use <project>.firebasestorage.app — use whatever the console shows.
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "aiexamroom.firebasestorage.app"
+    availability:
+      - BUILD
+      - RUNTIME

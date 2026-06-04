@@ -1,0 +1,113 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────────────────
+// Firestore security rules for the @edai/lms module.
+//
+// These are EXTRACTED from EdAI Suite v3 and assume role-based custom claims
+// (`roles` / `role`) on the auth token. Merge the helper functions and the
+// `lms_*` collection blocks below into your host project's firestore.rules
+// (inside the `match /databases/{database}/documents` block). If your host
+// already defines equivalent helpers, drop the duplicates and keep yours.
+// ─────────────────────────────────────────────────────────────────────────
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions (merge with host; dedupe as needed) ────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Full role set from custom claims; falls back to legacy single `role`.
+    function userRoles() {
+      return request.auth.token.get('roles', [request.auth.token.get('role', '')]);
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && role in userRoles();
+    }
+
+    function hasAnyRole(roles) {
+      return isAuthenticated() && userRoles().hasAny(roles);
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return hasAnyRole(['admin', 'superadmin']);
+    }
+
+    function isContentCurator() {
+      return hasAnyRole(['content_curator', 'admin', 'superadmin']);
+    }
+
+    function isPhysician() {
+      return hasAnyRole(['fellow', 'diplomate', 'researcher', 'content_curator', 'admin', 'superadmin']);
+    }
+
+    // ─── LMS Module collections ──────────────────────────────────────────
+
+    match /lms_courses/{courseId} {
+      allow read: if isPhysician();
+      allow create: if isContentCurator() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if resource.data.createdBy == request.auth.uid || isAdmin();
+      allow delete: if resource.data.createdBy == request.auth.uid || isAdmin();
+    }
+
+    match /lms_lessons/{lessonId} {
+      allow read: if isAuthenticated();
+      allow create: if isContentCurator();
+      allow update: if isContentCurator() || isAdmin();
+      allow delete: if isContentCurator() || isAdmin();
+    }
+
+    match /lms_enrollments/{enrollmentId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isPhysician() && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if false;
+    }
+
+    match /lms_lesson_progress/{progressId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isPhysician() && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if false;
+    }
+
+    match /lms_submissions/{submissionId} {
+      allow read: if isOwner(resource.data.userId) || isContentCurator();
+      allow create: if isPhysician() && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId) || isContentCurator();
+      allow delete: if false;
+    }
+
+    match /lms_curricula/{curriculumId} {
+      allow read: if isPhysician();
+      allow create: if isContentCurator() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if resource.data.createdBy == request.auth.uid || isAdmin();
+      allow delete: if resource.data.createdBy == request.auth.uid || isAdmin();
+    }
+
+    match /lms_curriculum_enrollments/{enrollmentId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isPhysician() && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if false;
+    }
+
+    match /lms_certificates/{certId} {
+      allow read: if isAuthenticated();
+      allow create: if isPhysician() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /lms_announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow create: if isContentCurator();
+      allow update, delete: if isContentCurator() || isAdmin();
+    }
+  }
+}
