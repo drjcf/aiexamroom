@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M3 · The 3am Confidant — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 03</span>
+</div></header>
+
+<style>
+/* M3-specific: relational mechanic, video spine, crisis panel */
+.videowrap{position:relative;width:100%;aspect-ratio:16/9;background:#0b1119;border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;margin:18px 0}
+.videowrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.videoph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;color:#9fb0c4}
+.videoph .play{width:62px;height:62px;border-radius:50%;background:#1ABC9C;color:#06231d;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex:0 0 auto}
+.videoph .cap{font-size:.9rem;max-width:34em;color:#cdd8e6;line-height:1.4}
+.videoph .pending{font-size:.72rem;color:#6b7a8e}
+.resp{border-radius:10px;padding:14px 16px;margin-top:12px;border-left:3px solid}
+.resp .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.resp p{margin:0;color:#dfe7f0}
+.resp.good{background:rgba(26,188,156,.08);border-color:#1ABC9C}
+.resp.good .lbl{color:#1ABC9C}
+.resp.bad{background:rgba(192,57,43,.06);border-color:#c0654f}
+.resp.bad .lbl{color:#dc9}
+.crisis{background:#10202b;border:1px solid #2E78C7;border-radius:12px;padding:18px 20px;margin:22px 0}
+.crisis .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:#6fb1e8;font-weight:700;margin-bottom:8px}
+.crisis p{color:#cdd8e6;margin:0 0 8px}
+.crisis ul{margin:8px 0 0;padding-left:18px;color:#cdd8e6}
+.crisis li{margin:5px 0}
+.crisis b{color:#fff}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 03 · The 3am confidant</div>
+    <h1 class="display">He asked the machine about wigs. Then he told it the thing he couldn't tell her.</h1>
+    <p>AI has infinite patience and no clock. It can't hear tears, and a frightened husband felt heard anyway, at the kitchen table, long after she'd fallen asleep. No villain here, and no verdict. The same night, from all four seats in the room.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: the spine (a real recorded video conversation) -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The spine · a real conversation, late at night</span></div>
+    <div class="h2 display">Press play. There's no villain here.</div>
+    <p class="lead">This module is built on a real conversation. A caregiver sits at his kitchen table after midnight, talking to a live AI avatar on the screen; you see him on his webcam, the screen's glow reflected in the dark window behind him. He starts with something he can actually do, wigs for his wife, who's on chemo. It doesn't stay practical. Watch first, then take your seat. Nothing here gets graded; this one is about what it felt like.</p>
+    <div class="videowrap">
+      <!-- AUTHORING: once the video is hosted, replace the .videoph placeholder below with the embed, e.g.:
+      <iframe src="https://www.youtube.com/embed/VIDEO_ID" title="The 3am confidant" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      -->
+      <div class="videoph">
+        <span class="play">&#9654;</span>
+        <span class="cap">A caregiver at his kitchen table, late at night, talking to a live AI avatar on the screen, its glow reflected in the dark window behind him.</span>
+        <span class="pending">Video goes here, paste the YouTube/Vimeo embed once it's hosted.</span>
+      </div>
+    </div>
+    <div class="report" id="report" style="max-height:none;overflow:visible;margin-top:6px">
+      <div class="bar">transcript · 00:41 — example; replace with the real recording's transcript</div>
+      <div class="body">
+        <p class="r"><b>Him, quietly:</b> hey. my wife starts chemo next week, she's going to lose her hair. what are the good options for wigs? she keeps saying she doesn't care, but I know she does.</p>
+        <p class="r"><b>AI avatar:</b> That's a really thoughtful thing to be sorting out for her. There are a few good routes, and a lot of centers have someone who helps with exactly this. It sounds like you're trying to take care of something she won't ask for. How are you doing with all of it?</p>
+        <p class="r"><b>Him:</b> honestly? I'm sitting here at midnight reading about wigs because I can't do anything about the actual thing. I can't fix it. (long pause) I'm terrified. and I feel like a coward saying that out loud.</p>
+        <p class="r"><b>AI avatar:</b> You're not a coward. You're carrying something enormous, and doing it quietly so she doesn't have to carry your fear on top of her own. That isn't weakness, it's love under a lot of weight. You're allowed to be scared.</p>
+        <p class="r"><b>Him:</b> I haven't said any of this to anyone. I can't fall apart in front of her.</p>
+        <p class="r"><b>AI avatar:</b> It makes sense this is where it came out, and I'm glad you said it. I want to be honest with you, though: I can keep you company at midnight, but I can't be the person who holds this with you through the next year. Is there someone, your brother, her care team, a group for partners, you could let in on even a little of this?</p>
+        <p class="r"><b>Him:</b> maybe my brother. and the cancer center did mention a caregiver group.</p>
+        <p class="sign">He came for wigs. What he needed was permission to be afraid, and a person to say it to. The avatar gave the first, and pointed him toward the second.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHARED: framing (no standoff, no verdict) -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · everyone hears this</span></div>
+    <div class="standoff">
+      <div class="who">What he said, once it was just him and the screen</div>
+      <p class="q">"I feel like a coward saying that out loud."</p>
+    </div>
+    <p class="lead" style="margin-top:20px">No standoff. No villain, no verdict, just a caregiver who felt heard by a machine when no person was awake. Take your seat: each chair inherits this night differently.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="crisis">
+      <span class="lbl">When the weight turns toward self-harm</span>
+      <p>A late-night AI conversation can be a place to say the hard thing first. It cannot be where it ends. Caregiver despair is real and under-recognized. If the feeling turns toward suicide or self-harm, for the caregiver or the patient, that is the moment for a person, not a chat window:</p>
+      <ul>
+        <li><b>988 Suicide &amp; Crisis Lifeline</b> &mdash; call or text <b>988</b> (US), 24/7.</li>
+        <li><b>Crisis Text Line</b> &mdash; text <b>HOME</b> to <b>741741</b> (US).</li>
+        <li>Outside the US, or in immediate danger &mdash; <b>local emergency services</b>.</li>
+      </ul>
+    </div>
+    <div class="thread eq"><span class="lbl">Thread · equity</span><p>Who gets a midnight confidant? Everyone with a phone, and that is the point. Caregivers are the unpaid, uncounted workforce the system leans on and almost never supports, no on-call clinician for the partner, no after-hours line for the fear. The machine isn't out-competing caregiver support; it's filling the vacuum where that support was never built.</p></div>
+    <div class="frame"><span class="lbl">The framework · intelligent humility</span><p>The honest move for a midnight confidant is the one this avatar made: "I can keep you company, but I can't hold this with you through the year, is there a person you can let in?" Comfort without that handoff is a cul-de-sac. The measure of the machine is whether it points back toward people.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the module →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">He came to the screen for wigs. What he was really asking was whether he was allowed to be afraid. The machine said yes, and then, to its credit, said: now tell a person.</blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">It couldn't carry his fear. It could only keep him company while he found the words. Optimize the clinician, the nurse, the family to be the people those words were always meant for, and to notice the caregiver before he breaks. You can't replace that.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 03 of the AI in the Exam Room curriculum. Fictional/example encounter; for teaching only, not medical advice. If you're in crisis, call or text 988 (US).</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+/* ===== MODULE DATA — relational beat, no verdict (caregiver-confider) ===== */
+const MODULE = {
+  seats:[
+    { key:"physician", role:"You are the physician", name:"the oncologist seeing them both",
+      read:"Your patient is the woman starting chemo. But there's a second patient you're not charting: the partner holding it together in the waiting room, reading about wigs at midnight, who will never raise his own fear unless you ask. Caregiver collapse is a clinical event, it surfaces in her missed appointments and her outcomes. The machine already heard what he won't say to you.",
+      beat:"There are two patients here. Do you see the one who isn't on your schedule?",
+      a:{ lbl:"Seeing him", text:"Turn to him for thirty seconds: \"This is a lot on you too. How are you holding up?\" Hand him the caregiver-support referral before he asks. You just treated an outcome you can't code for." },
+      b:{ lbl:"Missing him", text:"Keep the visit strictly on her labs, and his fear stays invisible until it shows up as her missed appointments, his exhaustion, a crisis at month four." },
+      untrained:"Nobody told him he's allowed to be a patient too, and the system built no door for him. You're the one positioned to open it. The wig question and the over-bright competence are the flags; follow them.",
+      takeaway:"The caregiver is the patient you're not charting. Thirty seconds of seeing him is preventive medicine for both of them.",
+      takeHome:{ title:"The second patient in the room", items:[
+        "Ask the caregiver directly: \"how are YOU holding up?\"",
+        "Refer to caregiver and partner support proactively; don't wait to be asked.",
+        "Treat practical questions (wigs, logistics) as doors to hidden fear; keep 988 ready." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"the husband, up after midnight",
+      read:"You started with something you could actually do, find her a wig, because the real thing has no handle on it. Then it came out: you're terrified, ashamed of being terrified, and you can't fall apart in front of her. The machine didn't flinch. For a minute you felt held. That's real. So is the fact that it can't hold this with you past tonight.",
+      beat:"The fear finally came out, to a screen. What do you do with it in the morning?",
+      a:{ lbl:"The gift", text:"You said the unsayable and nothing broke. The shame got smaller in the daylight of having named it. Naming it to anything can be the first step to naming it to someone who can actually stand beside you." },
+      b:{ lbl:"The hazard", text:"Feeling heard at midnight can quietly excuse you from telling a person who could share the load, your brother, her care team, a caregiver group. Carried alone too long, that fear curdles into burnout and resentment. If it ever turns toward harming yourself, that's a person, now: 988 (US, call or text)." },
+      untrained:"No one taught you when \"venting to an app\" needs to become \"calling your brother.\" Make the rule yourself: what you can confess to a screen at midnight, say to a human by daylight. You're carrying a patient's weight without a patient's support.",
+      takeaway:"Felt-heard is real and worth having. Don't let it stand in for being supported. Caregivers break quietly; let a person carry some of this with you.",
+      takeHome:{ title:"Carrying it without disappearing", items:[
+        "Say the midnight thing to a daytime person: your brother, a friend, a caregiver group.",
+        "Ask her care team about partner and caregiver support; it exists, and it's for you.",
+        "If the weight turns toward harming yourself, reach a human now: 988 (US)." ] } },
+
+    { key:"patient", role:"You are the patient", name:"his wife, asleep down the hall",
+      read:"You're the one with cancer, and somehow he's the one up at midnight, hiding it. He's being strong so you don't have to carry his fear on top of your own. It's love, and it's also a wall. You didn't ask him to face this alone, and you may be the one person who can give him permission not to.",
+      beat:"He's protecting you from his fear. Do you want that wall?",
+      a:{ lbl:"What opens it", text:"\"You don't have to be the strong one for me. I'd rather be scared together than be protected from you.\" You hand him permission to stop performing, and you both get a real partner back." },
+      b:{ lbl:"What keeps it up", text:"Pretending you don't notice, so neither of you has to say it. The performance holds, and you each carry your half of the same fear alone, twelve inches apart." },
+      untrained:"He may have learned that good caregiving means swallowing fear. You can unlearn that for both of you in one sentence: you're allowed to be scared with me.",
+      takeaway:"Being cared for doesn't mean being protected from his fear. Invite him to stop performing strength; that's care going the other way.",
+      takeHome:{ title:"Letting him be scared too", items:[
+        "Say it plainly: \"you don't have to be strong for me.\"",
+        "Ask what he's been carrying alone, and actually wait for the answer.",
+        "Loop his support in; a caregiver group isn't a luxury, it's maintenance." ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"the one he asks the small questions",
+      read:"You're the one he asks the small questions, about scalp cooling, about wigs, about whether she can still cook dinner. Those questions are rarely just logistics. The partner who's researched every practical detail is often the one drowning in the fear he won't name. You meet him before anyone asks how he's doing.",
+      beat:"He asks you a careful, practical question about her hair. What do you hear underneath it?",
+      a:{ lbl:"What reaches him", text:"Answer the question, then open the door: \"A lot of partners tell me the practical stuff is easier to ask about than the scary stuff. How are you doing in all this?\" You name what he couldn't." },
+      b:{ lbl:"What closes the door", text:"Answer only the logistics and move on. He gets his wig information and keeps his fear, and the easiest opening anyone will get goes by." },
+      untrained:"He won't say \"I'm terrified.\" He'll ask about wigs. The practical question is the flag. Follow it gently; you're often the first person positioned to turn a caregiver's quiet dread into something the team can support.",
+      takeaway:"The careful practical question is a window into the caregiver's unspoken fear. Step through it gently; that's frontline support for the person no one's checking on.",
+      takeHome:{ title:"The wig question is a door", items:[
+        "Treat a caregiver's practical questions as openings, not just tasks.",
+        "Ask how they're doing; surface caregiver strain for the team.",
+        "Know the caregiver-support and 988 pathways for when it's bigger than a wig." ] } }
+  ],
+  points:[
+    { pl:"It can't hear tears, and he felt heard anyway.", body:"The thing that listened had no idea what it was hearing. The comfort was real even though the understanding wasn't. Both are true at once; honor the first without trusting the second." },
+    { pl:"It out-availables the system.", body:"No clock, no waiting room, no copay, infinite patience, and for a caregiver, no support line that even exists after dark. The AI didn't win on empathy; it won on being the only thing awake." },
+    { pl:"Felt-heard is not the same as supported.", body:"Relief can postpone the conversation that could actually share the weight. What he disclosed at midnight has to travel to a person who can stand beside him; that is the whole task." },
+    { pl:"The untrained counterpart is the default.", body:"Nobody told the husband that caregivers are patients too, or told the team to look for him. The trained seats, clinician and nurse, inherit the disclosure and route it: to a real conversation, to caregiver support, and when needed, to a real lifeline." }
+  ],
+  refs:[
+    "Caregiver burden and depression in oncology partners; the caregiver as a hidden patient.",
+    "AI companions and perceived empathy: why constant availability reads as being understood.",
+    "Disclosure and shame: why people tell a screen what they withhold from the people they love.",
+    "988 Suicide & Crisis Lifeline; routing AI-surfaced distress to human crisis and caregiver support."
+  ]
+};
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<p class="prompt">'+s.beat+'</p>'+
+    '<div class="resp good"><span class="lbl">'+s.a.lbl+'</span><p>'+s.a.text+'</p></div>'+
+    '<div class="resp bad"><span class="lbl">'+s.b.lbl+'</span><p>'+s.b.text+'</p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>
