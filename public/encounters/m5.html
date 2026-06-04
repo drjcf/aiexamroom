@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M5 · Access for the Unreached — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 05</span>
+</div></header>
+
+<style>
+/* M5-specific: access narrative, bilingual chat with language toggle */
+.doors{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.door{font-size:.86rem;color:#7d8ba0;background:#0f1722;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:7px 12px;text-decoration:line-through;text-decoration-color:#c0654f;text-decoration-thickness:2px}
+.chatwrap{background:#0f1722;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:6px 6px 14px;margin:14px 0}
+.chatbar{display:flex;justify-content:space-between;align-items:center;padding:9px 10px 4px;gap:10px}
+.chatbar .tag{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#7d8ba0}
+.langbtn{font:inherit;cursor:pointer;background:rgba(26,188,156,.12);border:1px solid #1ABC9C;color:#9af0dd;border-radius:999px;padding:5px 13px;font-size:.8rem;transition:.15s}
+.langbtn:hover{background:rgba(26,188,156,.2);color:#fff}
+.bub{border-radius:11px;padding:11px 14px;margin:8px 10px;max-width:90%;line-height:1.5}
+.bub .who{display:block;font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;color:#7d8ba0;margin-bottom:3px}
+.bub.p{background:#13202c;border:1px solid rgba(255,255,255,.08);color:#dfe7f0;margin-left:auto}
+.bub.a{background:rgba(26,188,156,.08);border:1px solid rgba(26,188,156,.25);color:#e8f6f2}
+.resp{border-radius:10px;padding:14px 16px;margin-top:12px;border-left:3px solid}
+.resp .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.resp p{margin:0;color:#dfe7f0}
+.resp.good{background:rgba(26,188,156,.08);border-color:#1ABC9C}
+.resp.good .lbl{color:#1ABC9C}
+.resp.info{background:rgba(46,120,199,.08);border-color:#2E78C7}
+.resp.info .lbl{color:#6fb1e8}
+.thread.bias{background:rgba(192,57,43,.06);border-left:3px solid #c0654f}
+.thread.bias .lbl{color:#dc9}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 05 · Access for the unreached</div>
+    <h1 class="display">No doctor, no English, no ride. At midnight, the machine was the only door open.</h1>
+    <p>For the patient the system never reached, AI isn't a downgrade from good care, it's the first care at all: an explanation in her language, at her literacy, without cost or shame. The clearest win in this whole curriculum, and it arrives holding its own catch. The same midnight, from all four seats.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: the closed doors + the one that opened -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The doors · what was closed to her</span></div>
+    <div class="h2 display">Everything that wasn't available.</div>
+    <p class="lead">Guadalupe, 52, works two jobs and left the clinic with a high-blood-sugar diagnosis and a pamphlet she couldn't read. Here is what she did <em>not</em> have when she got home:</p>
+    <div class="doors">
+      <span class="door">A doctor of her own</span>
+      <span class="door">An interpreter at the clinic</span>
+      <span class="door">Money for another visit</span>
+      <span class="door">A ride to get back there</span>
+      <span class="door">A pamphlet she could read</span>
+    </div>
+    <div class="h2 display" style="margin-top:26px">The one that opened.</div>
+    <p class="lead">At midnight she opened a chatbot and typed in Spanish. For the first time, something answered in her language, at her literacy, for free.</p>
+    <div class="chatwrap">
+      <div class="chatbar"><span class="tag" id="chatTag">Shown in Spanish · as she received it</span><button class="langbtn" id="langBtn">View in English</button></div>
+      <div id="chat"></div>
+    </div>
+  </section>
+
+  <!-- SHARED: the moment -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · everyone is downstream of this</span></div>
+    <div class="standoff">
+      <div class="who">Guadalupe, reading the screen</div>
+      <p class="q">"Por primera vez, alguien me lo explicó." <span style="color:#7d8ba0;font-weight:400">— "For the first time, someone explained it to me."</span></p>
+    </div>
+    <p class="lead" style="margin-top:20px">Against a perfect clinic, this is lesser. Against what she actually had, it's everything. Take your seat: each chair inherits a patient the system never reached.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="thread eq"><span class="lbl">Thread · equity (the promise)</span><p>For the patient with no doctor, no English, no transport, the comparison isn't AI versus a great clinic, it's AI versus nothing. Measured against nothing, a midnight explanation in her own language is the most equitable thing that happened to her all year. This is the clearest win in the whole curriculum, and it should be named as one.</p></div>
+    <div class="thread bias"><span class="lbl">Thread · bias (the catch, same breath)</span><p>The training data underrepresents exactly the people the tool reaches, different bodies, diets, names, skin, baseline risk. The answer arrives in fluent Spanish and may still be calibrated to someone she isn't. Access without accuracy is its own inequity. The human's job is to supply the specificity the average answer can't.</p></div>
+    <div class="frame"><span class="lbl">The framework · which tool, exactly</span><p>Content control matters most precisely here. A model constrained to validated sources opens a real door; an open-web model confabulating fluently in her language is more dangerous to her than to almost anyone, because it may be the only voice she has, and it sounds certain. For the unreached, content control isn't a nicety, it's the safeguard.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the module →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">For most of this curriculum the AI is something to be managed. For her, it was the first door anyone left open. Both of those are true, and pretending otherwise insults the people the system already failed.</blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">The door it opens is real; the catch it carries is too. Optimize the clinician and the nurse to welcome the patients AI reaches, and to supply the one thing it can't: the answer fitted to <em>this</em> body, in <em>this</em> language. You can't replace that, and here, you finally don't have to compete with it.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 05 of the AI in the Exam Room curriculum. Fictional encounter; for teaching only, not medical advice.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+/* ===== MODULE DATA — access narrative, bilingual chat ===== */
+const MODULE = {
+  chat:[
+    { who:"p", es:"Me dijeron que tengo el azúcar alta y me dieron un papel, pero está en inglés y no entendí nada. ¿Qué significa? ¿Me voy a morir?",
+              en:"They told me my sugar is high and gave me a paper, but it's in English and I didn't understand any of it. What does it mean? Am I going to die?" },
+    { who:"a", es:"Respira tranquila. \u201cAzúcar alta\u201d quiere decir que a tu cuerpo le cuesta usar el azúcar de la comida; se llama diabetes o prediabetes. No te vas a morir por entender esto hoy. Te lo explico paso a paso, en palabras sencillas. ¿Quieres empezar por qué puedes comer, o por para qué es la medicina?",
+              en:"Take a breath. \u201cHigh sugar\u201d means your body has trouble using the sugar from food; it's called diabetes or prediabetes. You're not going to die from understanding this today. I'll explain it step by step, in plain words. Want to start with what you can eat, or what the medicine is for?" },
+    { who:"p", es:"La medicina. Tengo miedo de tomarla mal.",
+              en:"The medicine. I'm afraid I'll take it wrong." },
+    { who:"a", es:"Es muy razonable esa duda. En general, esta medicina ayuda a tu cuerpo a manejar el azúcar. Lo más importante: tómala como te la recetaron, y pídele a tu farmacéutico o a una enfermera que te confirmen la dosis exacta; eso es gratis y lo puedes hacer en tu idioma. ¿Quieres que te prepare unas preguntas para llevar?",
+              en:"That's a very reasonable worry. In general, this medicine helps your body manage sugar. The most important thing: take it exactly as prescribed, and ask your pharmacist or a nurse to confirm the exact dose; that's free and you can do it in your language. Want me to prepare some questions for you to bring?" }
+  ],
+  seats:[
+    { key:"physician", role:"You are the physician", name:"the clinician she finally reaches",
+      read:"The patient in front of you understands her diagnosis, in her second language, and she only made it here because an AI explained it first, for free, at midnight, without shame. That isn't a threat to your authority. It's a patient who would otherwise never have arrived, or arrived too late. Treat the AI as the outreach worker you never had the budget for, and do the part it can't: confirm what fits this specific person.",
+      a:{ lbl:"What it opened", text:"Access. People who'd have stayed home out of cost, language, or shame walk in already oriented. Your visit starts at understanding instead of at zero." },
+      b:{ lbl:"What to carry carefully", text:"The same tool that reached her was trained on populations that underrepresent her. Assume the general advice may not fit; verify dose, risk, and norms against the patient, not the average. Equity in access can hide inequity in accuracy." },
+      untrained:"She wasn't taught that an answer in fluent Spanish can still be calibrated to someone else's biology. You're the one who closes that gap: welcome the access, then individualize the medicine.",
+      takeaway:"AI is the outreach you never funded. Welcome the patients it brings, and supply the specificity it can't.",
+      takeHome:{ title:"Equity, not threat", items:[
+        "Treat AI-informed under-served patients as a win, not a correction fight.",
+        "Verify general advice against this patient; underrepresentation hides in confident answers.",
+        "Build the visit on the understanding they arrived with." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"the family member who navigates it all",
+      read:"You've been the translator, the driver, the one who fills the forms, often guessing. For the first time you can read the diagnosis in your own language and actually understand the care you've been navigating blind. That's relief, and a new responsibility: you become the bridge between a machine's general answer and your loved one's specific body.",
+      a:{ lbl:"What it opened", text:"You finally understand what's happening, so you can advocate instead of guess. The questions you bring are sharper; the appointments go further." },
+      b:{ lbl:"What to carry carefully", text:"Being the translator now includes translating uncertainty: telling them when the AI's example doesn't match their reality, and pushing the care team to confirm. Don't let new fluency become false certainty." },
+      untrained:"You're often the only person in the room fluent in the system, and now you have a tool that speaks your language. Use it to prepare, then make the professionals earn the specifics, in your language.",
+      takeaway:"AI let you finally understand the care you navigated blind. Be the bridge: carry the understanding in, carry the uncertainty back to a human.",
+      takeHome:{ title:"From guessing to advocating", items:[
+        "Use AI to understand the diagnosis before the visit.",
+        "Bring the specific questions it helped you find.",
+        "Ask the team to confirm anything that's about their body, not the average body." ] } },
+
+    { key:"patient", role:"You are the patient", name:"Guadalupe, 52",
+      read:"You left the clinic with a paper you couldn't read and a fear you couldn't say. No interpreter, no money for another visit, no one to ask without feeling small. At midnight, in your own language, something finally explained it, slowly, without making you feel stupid. That is not a lesser kind of care. For you, tonight, it was the only door.",
+      a:{ lbl:"What it opened", text:"An explanation you could understand, on your schedule, in your language, for free, and without shame. You can walk into the next visit knowing the words. That changes everything." },
+      b:{ lbl:"What to carry carefully", text:"It was built mostly on people who aren't you. The example diet, the assumptions, the \u201ctypical\u201d case may not fit your body, your foods, your family. Use it to understand and to ask better, never as the last word on your dose." },
+      untrained:"No one taught you that the confident voice in your language might be calibrated to someone else's body. Let it open the door, then let a human, a nurse, a pharmacist, confirm the parts that are about you specifically.",
+      takeaway:"AI gave you the first explanation you could actually understand. Let it arm your questions, not replace the person who confirms the answers.",
+      takeHome:{ title:"Use the door, then find a person", items:[
+        "Let AI explain in your language; bring the words to your visit.",
+        "Confirm anything about your dose with a pharmacist or nurse, it's free and it's your right.",
+        "Tell the clinician: \u201cI read about this, please check that it fits me.\u201d" ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"the one who does patient teaching",
+      read:"Patient education is yours, and now part of it has already happened, at midnight, in the patient's language, by a machine. That's a head start, not a turf war. She arrives knowing the outline. Your job shifts to the highest-value part: confirm what's right, gently correct what's off, and nail the specifics the AI had to keep general, the exact dose, the real teach-back.",
+      a:{ lbl:"What it opened", text:"The first teach is done, in her language, before she ever reached you. You start from comprehension and spend your minutes on accuracy and teach-back instead of from-scratch basics." },
+      b:{ lbl:"What to carry carefully", text:"A first teach can plant confident, generic, or mis-calibrated ideas. Your confirm-and-correct is where the safety lives, especially dosing and the red flags the AI kept vague on purpose." },
+      untrained:"She may treat the AI's fluent answer as settled. You're the human who turns a general explanation into a safe, specific plan, and who catches what the model softened or skipped.",
+      takeaway:"AI does the first teach; you do the one that's safe. Confirm, correct, and own the specifics it left general.",
+      takeHome:{ title:"First teach, then confirm", items:[
+        "Build on what the AI taught; don't repeat from zero.",
+        "Teach-back the specifics: exact dose, timing, red flags.",
+        "Gently correct generic or mis-calibrated advice, in her language." ] } }
+  ],
+  points:[
+    { pl:"For the unreached, AI isn't a downgrade, it's the door.", body:"Against a perfect clinic visit, an AI chat is lesser. Against what she actually had, no doctor, no interpreter, no money, no one to ask, it's everything. Judge it against her real alternative, not an ideal one." },
+    { pl:"The promise and the catch are one breath.", body:"The tool that reaches the underserved was trained on data that underrepresents them. The very people it opens the door for are the ones its general answers fit least well. Celebrate the access; verify the accuracy." },
+    { pl:"Tool choice is the whole game.", body:"A content-controlled model grounded in validated sources is a door; an open-web model that confabulates in fluent Spanish is a trap that's harder to spot because it's so reassuring. For the unreached, the difference between those tools is the difference between help and harm." },
+    { pl:"The untrained counterpart is the default, doubly so here.", body:"She had no clinician and no AI literacy. The trained seats, nurse and physician, inherit a patient the system never reached, and route her: build on the understanding, confirm the specifics, individualize the average." }
+  ],
+  refs:[
+    "Language barriers, interpreter access, and health outcomes in limited-English-proficiency patients.",
+    "AI-assisted patient education and plain-language translation: reach versus accuracy.",
+    "Underrepresentation in medical training data and downstream disparities in model performance.",
+    "Content-controlled / validated-source models versus open-web LLMs for safety-critical patient guidance."
+  ]
+};
+
+/* bilingual chat with language toggle */
+let LANG='es';
+function renderChat(){
+  const c=$('chat'); c.innerHTML='';
+  MODULE.chat.forEach(m=>{
+    const b=document.createElement('div'); b.className='bub '+m.who;
+    b.innerHTML='<span class="who">'+(m.who==='p'?'Guadalupe':'AI')+'</span>'+(LANG==='es'?m.es:m.en);
+    c.appendChild(b);
+  });
+  $('chatTag').textContent=LANG==='es'?'Shown in Spanish · as she received it':'Translated to English · for you';
+  $('langBtn').textContent=LANG==='es'?'View in English':'Ver en español';
+}
+$('langBtn').addEventListener('click',()=>{LANG=LANG==='es'?'en':'es';renderChat();});
+renderChat();
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<div class="resp good"><span class="lbl">'+s.a.lbl+'</span><p>'+s.a.text+'</p></div>'+
+    '<div class="resp info"><span class="lbl">'+s.b.lbl+'</span><p>'+s.b.text+'</p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>
