@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M8 · The Good Co-pilot — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .stack{position:relative;margin:26px auto 6px;width:min(300px,82%);height:200px;cursor:pointer}
+  .stack .pg{position:absolute;inset:0;background:#f3f4f1;border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.4);border:1px solid #d8dad4}
+  .stack .pg:nth-child(1){transform:rotate(-5deg) translateY(6px)}
+  .stack .pg:nth-child(2){transform:rotate(3deg) translateY(3px)}
+  .stack .pg:nth-child(3){transform:rotate(-1.5deg)}
+  .stack .pg.top{background:#fbfbf9;display:flex;flex-direction:column;padding:16px 16px 0}
+  .stack .pg.top .h{font-family:var(--mono);font-size:.6rem;color:#9aa;letter-spacing:.04em}
+  .stack .pg.top .t{font-family:var(--display);color:#1a2230;font-size:1.05rem;margin:8px 0 4px;line-height:1.15}
+  .stack .pg.top .l{height:6px;background:#e4e6e0;border-radius:3px;margin:5px 0}
+  .stack .pg.top .l.s{width:60%} .stack .pg.top .l.m{width:85%}
+  .stack .pg.top .alert{margin-top:auto;background:#fdeaea;color:#9a2a2a;font-size:.66rem;font-weight:600;border-radius:5px;padding:6px 8px;margin-bottom:0;border-left:3px solid #c0392b}
+  .stack .count{position:absolute;right:-10px;top:-12px;background:var(--teal-d);color:#04140f;font-size:.68rem;font-weight:700;border-radius:99px;padding:4px 10px;font-family:var(--mono);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .stackcap{text-align:center;color:var(--muted);font-size:.86rem;margin-top:12px}
+  .stack{transition:transform .18s ease}
+  .stack:hover{transform:translateY(-4px)}
+  .taphint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:var(--teal-d);color:#04140f;font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 12px;box-shadow:0 6px 16px rgba(0,0,0,.45);white-space:nowrap;pointer-events:none}
+  .openrow{text-align:center} .openrow .btn{margin-top:16px}
+  /* compact hero when embedded in the LMS iframe */
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .report{display:none;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:#0c1422;overflow:hidden}
+  .report.open{display:block}
+  .report .bar{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.72rem;color:var(--muted);background:rgba(255,255,255,.02)}
+  .report .body{padding:16px 18px;font-size:.92rem}
+  .report .body .r{color:#cdd8e6;margin:.3rem 0}
+  .report .body .danger{color:#f3b0b0;font-weight:600}
+  .report .body .sign{color:var(--teal);font-family:var(--mono);font-size:.78rem;margin-top:12px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
+  .tab{border:1px solid var(--line);background:transparent;color:#cdd8e6;border-radius:99px;padding:9px 16px;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.9rem;transition:all .15s;display:flex;align-items:center;gap:7px}
+  .tab:hover{border-color:var(--teal)}
+  .tab.active{background:var(--teal-d);color:#04140f;border-color:var(--teal-d)}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .tab.seen .dot{background:var(--teal)} .tab.active .dot{background:#04140f}
+  .panel{display:none} .panel.active{display:block;animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel .seatname{font-family:var(--display);font-size:1.5rem;color:#fff;margin:0 0 2px}
+  .panel .role{font-size:.78rem;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .panel .read{color:#cdd8e6;margin:12px 0 0;max-width:44em}
+  .prompt{margin-top:18px;font-weight:600;color:#fff}
+  .opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:9px;padding:12px 14px;margin:9px 0;cursor:pointer;font-family:var(--body);font-size:.93rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--teal)}
+  .opt.pick.pro{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt.pick.con{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .opt.pick.neutral{border-color:var(--amber);background:rgba(230,162,62,.12)}
+  .opt.dim{opacity:.4}
+  .outcome{margin-top:12px;border-radius:0 9px 9px 0;padding:12px 15px;display:none}
+  .outcome.show{display:block;animation:rise .4s ease}
+  .outcome.pro{border-left:3px solid var(--green);background:rgba(39,174,96,.07)}
+  .outcome.con{border-left:3px solid var(--red);background:rgba(192,57,43,.07)}
+  .outcome.neutral{border-left:3px solid var(--amber);background:rgba(230,162,62,.07)}
+  .outcome .lbl{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+  .outcome.pro .lbl{color:var(--green)} .outcome.con .lbl{color:var(--red)} .outcome.neutral .lbl{color:var(--amber)}
+  .outcome p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .seatcheck{margin-top:20px}
+  .seatcheck > .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .qblock{margin-top:10px}
+  .qblock .q{font-weight:600;color:#fff;margin:0 0 8px}
+  .opt2{display:block;width:100%;text-align:left;border:1px solid var(--line);background:transparent;color:#dbe6f2;border-radius:8px;padding:10px 13px;margin:7px 0;cursor:pointer;font-family:var(--body);font-size:.92rem}
+  .opt2:hover{border-color:var(--teal)}
+  .opt2.right{border-color:var(--green);background:rgba(39,174,96,.12)}
+  .opt2.wrong{border-color:var(--red);background:rgba(192,57,43,.12)}
+  .explain{margin-top:10px;font-size:.9rem;color:#aebccd;display:none}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;border:0;cursor:pointer;font-family:var(--body);font-weight:600;font-size:.98rem;padding:.7rem 1.25rem;border-radius:.6rem;background:var(--teal-d);color:#04140f;transition:transform .15s,background .15s;margin-top:22px}
+  .btn:hover{background:var(--teal);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:#cdd8e6}
+  .btn.ghost:hover{border-color:var(--teal);color:#fff}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Human Module 08</span>
+</div></header>
+
+<style>
+/* M8-specific: partnership board, division of labor */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:16px 0 4px}
+.card{cursor:pointer;background:#0f1722;border:1px solid rgba(255,255,255,.14);border-radius:11px;padding:14px;transition:.15s;min-height:104px}
+.card:hover{border-color:#2E78C7}
+.card .task{color:#dfe7f0;font-size:.95rem;line-height:1.4}
+.card .hint{display:block;color:#5c6b7e;font-size:.72rem;margin-top:10px}
+.card .owner{display:none}
+.card.flip{cursor:default}
+.card.flip .hint{display:none}
+.card.flip .owner{display:block;margin-top:9px}
+.card.flip.ai{background:rgba(26,188,156,.1);border-color:#1ABC9C}
+.card.flip.human{background:rgba(46,120,199,.12);border-color:#2E78C7}
+.card .otag{font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700}
+.card.ai .otag{color:#1ABC9C}
+.card.human .otag{color:#6fb1e8}
+.card .why{display:block;color:#aebccd;font-size:.85rem;margin-top:5px;line-height:1.4}
+.boardnote{font-size:.92rem;color:#9af0dd;margin:14px 6px 4px}
+.resp{border-radius:10px;padding:14px 16px;margin-top:12px;border-left:3px solid}
+.resp .lbl{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.resp p{margin:0;color:#dfe7f0}
+.resp.good{background:rgba(26,188,156,.08);border-color:#1ABC9C}
+.resp.good .lbl{color:#1ABC9C}
+.resp.info{background:rgba(46,120,199,.08);border-color:#2E78C7}
+.resp.info .lbl{color:#6fb1e8}
+.thread.acct{background:rgba(46,120,199,.06);border-left:3px solid #2E78C7}
+.thread.acct .lbl{color:#6fb1e8}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 08 · The good co-pilot</div>
+    <h1 class="display">Used well, AI doesn't replace the clinician. It hands the labor down and the judgment back.</h1>
+    <p>This is the resolution. Everything the last seven modules warned about was the same mistake, the line between labor and judgment in the wrong place. Put it back: structure in, judgment on top, and the pair beats either alone. The same prepared visit, from all four seats.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <!-- SHARED: sort the work -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The board · who should own each piece</span></div>
+    <div class="h2 display">Sort the work.</div>
+    <p class="lead">A returning patient with a complex history, a twelve-minute slot. Before the visit, an AI assembled a summary; in the room, the clinician runs it. Here's the work of that encounter, broken into pieces. Tap each one: who should own it, the machine or the human?</p>
+    <div class="board" id="board"></div>
+    <div class="boardnote hidden" id="boardNote">Everything in teal is labor the machine should carry. Everything in blue is judgment, sensing, verification, and accountability the human must keep. Sort the work this way and the clinician is optimized, not replaced, and the pair beats either alone.</div>
+  </section>
+
+  <!-- SHARED: the moment -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The moment · the line the whole curriculum turns on</span></div>
+    <div class="standoff">
+      <div class="who">The principle under all eight modules</div>
+      <p class="q">"Optimize me, because you can't replace me."</p>
+    </div>
+    <p class="lead" style="margin-top:20px">Structure in, judgment on top. Take your seat: in the finale, every chair gets the win.</p>
+  </section>
+
+  <!-- PER-SEAT slice -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Take your seat</span></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="panels"></div>
+    <button class="btn ghost" id="dissectBtn">See the shared dissection →</button>
+  </section>
+
+  <!-- SHARED: dissection -->
+  <section class="step hidden" id="dissect">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The dissection · the truth of the encounter, for every seat</span></div>
+    <div class="h2 display">What this was actually about.</div>
+    <div id="points"></div>
+    <div class="thread acct"><span class="lbl">Thread · accountability (the resolution)</span><p>The whole curriculum turns on one line: what you offload and what you keep. Offload the labor, keep the judgment, the synthesis, the sensing, the decision, the accountability, and AI makes a licensed human better at being one. Move that line the wrong way and every failure in the prior seven modules follows. The good co-pilot is defined entirely by where the line sits.</p></div>
+    <div class="frame"><span class="lbl">The framework · real partnership has a tell</span><p>A genuine co-pilot is one the human can still overrule, still has to verify, still has to sign for. That isn't friction, it's the point. A co-pilot you can't override isn't a co-pilot, it's an autopilot with your name on the paperwork. Human-in-the-loop is only real when the human can say no and bears the consequence either way.</p></div>
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs" id="refs"></ul>
+    <button class="btn ghost" id="closeBtn">Close the curriculum →</button>
+  </section>
+
+  <section class="step hidden" id="closeSec">
+    <blockquote class="display close">The co-pilot doesn't fly the plane. It takes the load off the pilot so the pilot flies it better, and the pilot still signs for the landing.</blockquote>
+    <p style="color:#aebccd;max-width:40em;margin-top:18px">Seven modules of warnings resolve into one instruction. Hand the machine the labor, the records, the draft, the second read. Keep the judgment, the senses, the decision, and the name on the chart. Do that, and AI is the best thing to happen to an overstretched clinician in a generation. Optimize the clinician. You can't replace them, and done right, you finally don't have to try.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 08 of the AI in the Exam Room curriculum. A free, non-commercial educational initiative by John C. Ferguson, MD, FACS. For teaching only, not medical advice.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+
+/* ===== MODULE DATA — partnership / division of labor ===== */
+const MODULE = {
+  board:[
+    { task:"Pull three years of records into one timeline", owner:"ai", tag:"Offload · labor", why:"Hours of chart-digging in seconds. Pure structure, no judgment required." },
+    { task:"Draft the visit note from the conversation", owner:"ai", tag:"Offload · labor", why:"The scribe that returns the clinician's eyes to the patient instead of the keyboard." },
+    { task:"Flag a possible drug interaction to check", owner:"ai", tag:"Offload · second read", why:"A tireless second read that surfaces what a tired human can miss, to be verified, not obeyed." },
+    { task:"Read the fear on the patient's face", owner:"human", tag:"Keep · sensing", why:"The unsensed room. Ten billion sensors the wire will never have." },
+    { task:"Confirm the summary is actually right", owner:"human", tag:"Keep · verification", why:"Confident isn't correct. The human is the validation gate the machine can't be." },
+    { task:"Decide the diagnosis", owner:"human", tag:"Keep · judgment", why:"Synthesis and the exam, the cognitive altitude the model can't reach." },
+    { task:"Choose the treatment and own the outcome", owner:"human", tag:"Keep · accountability", why:"The licensed, liable decision. The one seat that answers for it." }
+  ],
+  seats:[
+    { key:"physician", role:"You are the physician", name:"the one the co-pilot was built for",
+      read:"This is the resolution of the whole curriculum. The AI takes the labor, the timeline, the draft note, the second read, and hands you back the two things it cannot do: your eyes on the patient, and the judgment on top. You're optimized, not replaced, precisely because you keep the judgment and own the outcome. The machine sits under you, not in front of you.",
+      carries:{ lbl:"What the machine carries", text:"The records, the draft, the reconciliation, the tireless second read. Hours of structure that used to come out of the visit, and out of you." },
+      keeps:{ lbl:"What you keep", text:"The exam, the synthesis, the diagnosis, the decision, and the signature. Verify what matters, and own what you sign. That's the line that keeps you the clinician and not the cosigner." },
+      untrained:"The risk isn't using AI, it's drifting across the line, letting it make the calls while you rubber-stamp. You're the one who keeps the loop real: still able to say no, still verifying, still accountable.",
+      takeaway:"Offload the structure, keep the judgment, own the outcome. That's the difference between optimized and replaced.",
+      takeHome:{ title:"Structure in, judgment on top", items:[
+        "Let AI carry the records, the draft, the second read.",
+        "Verify what matters; keep the diagnosis and the decision.",
+        "Stay the one who can say no and signs for the call." ] } },
+
+    { key:"caregiver", role:"You are the caregiver", name:"the human integration layer, finally helped",
+      read:"You've been the integration layer across five providers who don't talk to each other, holding the meds, the timeline, and the questions in your head and on sticky notes. AI can finally assemble one coherent picture, so you advocate from organization instead of memory, and spend your energy on the part only you can do: knowing the person behind the chart.",
+      carries:{ lbl:"What the machine carries", text:"Consolidating the records across providers, translating the jargon, drafting the question list, the coordinating labor that used to fall entirely on you." },
+      keeps:{ lbl:"What you keep", text:"The judgment that knows this person, what's changed, what's off, what they'd never say to a doctor. You bring the one picture; you stay the one who reads the human." },
+      untrained:"No one resourced you for the coordination you've been doing for free. Use the tool to carry it, and keep being the advocate who notices what no summary captures.",
+      takeaway:"Let AI assemble the picture so you can advocate from organization, and keep being the one who knows the person.",
+      takeHome:{ title:"From sticky notes to one picture", items:[
+        "Use AI to consolidate records and meds across the team.",
+        "Bring one organized picture and a clear question list.",
+        "Stay the judgment that knows the person, not just the chart." ] } },
+
+    { key:"patient", role:"You are the patient", name:"the one whose twelve minutes finally count",
+      read:"You walked in with a clear, organized picture, the prepared patient done right, and because the AI did the assembling, the twelve minutes go to the conversation that actually needs a human. You're not re-explaining your history from scratch; you're starting at minute three. The machine bought you back the part of the visit that matters.",
+      carries:{ lbl:"What the machine carries", text:"Organizing your history, your meds, and your questions before you arrive, so the visit doesn't get spent on logistics." },
+      keeps:{ lbl:"What you keep", text:"Sharing it as a starting point, not a verdict, and letting your clinician examine, question, and decide. You bring the prep; they bring the judgment." },
+      untrained:"Used wrong, your summary anchors the doctor or replaces the visit. Used right, it hands them a head start and leaves the diagnosis where it belongs.",
+      takeaway:"Use AI to prepare and organize, then let the saved minutes go to the conversation only a human can have.",
+      takeHome:{ title:"Make the twelve minutes count", items:[
+        "Arrive organized; let AI assemble the history and questions.",
+        "Share it as a starting point, not a diagnosis.",
+        "Spend the saved time on the conversation that needs a person." ] } },
+
+    { key:"nurse", role:"You are the nurse", name:"reconciliation and teaching, amplified",
+      read:"Medication reconciliation and patient teaching are yours, and AI can take the first pass at both, drafting the reconciliation list and the first explanation. That's amplification, not replacement: you do the part it can't, confirm against the real bottles, catch the confident-wrong, and tailor the teaching to this specific human. The labor shrinks; your judgment expands to fill the time it freed.",
+      carries:{ lbl:"What the machine carries", text:"Drafting the reconciliation list and a first-pass teach, the repetitive groundwork that used to eat your shift." },
+      keeps:{ lbl:"What you keep", text:"Confirming against the actual medications, catching the fabricated or mis-calibrated, and the teach-back that actually sticks for this patient. The safety lives in your confirm-and-correct." },
+      untrained:"The draft is a starting point, never the final word. You're the one who turns it into a safe, specific, confirmed plan, and who catches what it got confidently wrong.",
+      takeaway:"Let AI draft the reconciliation and the first teach; you confirm, correct, and own the specifics.",
+      takeHome:{ title:"Amplified, not replaced", items:[
+        "Let AI draft reconciliation and first-pass teaching.",
+        "Confirm against the real bottles; catch confident-wrong.",
+        "Spend reclaimed time on teach-back that sticks." ] } }
+  ],
+  points:[
+    { pl:"Structure in, judgment on top.", body:"AI is extraordinary at the labor, gathering, organizing, drafting, flagging, and incapable of the judgment, synthesis, sensing, deciding, owning. Put the machine under the human, not in front of them, and the pair beats either alone." },
+    { pl:"Every prior module's win is the same move done right.", body:"The prepared patient, the verified claim, the human in the unsensed room, the owned disposition, it's all one principle: offload what's labor, keep what's judgment, and never confuse the two." },
+    { pl:"Offload labor, keep judgment, that's the whole resolution.", body:"The failures in this curriculum came from the line moving the wrong way, judgment offloaded, labor kept. Get the line right and AI is the best thing to happen to an overstretched clinician in a generation." },
+    { pl:"Optimized is not replaced, and the difference is accountability.", body:"A human who keeps the judgment and owns the outcome is optimized. One who hands those over isn't using a co-pilot, they've left the cockpit, and the machine can't take the controls, because it can't take the blame." }
+  ],
+  refs:[
+    "AI scribes and ambient documentation: clinician time, burnout, and attention to the patient.",
+    "Human-AI teaming in clinical decision support: complementary performance versus either alone.",
+    "Verification, oversight, and the difference between real human-in-the-loop and rubber-stamping.",
+    "Medication reconciliation and patient education augmented by AI; the nurse's confirm-and-correct role."
+  ]
+};
+
+/* partnership board */
+const board=$('board'); let flipped=0;
+MODULE.board.forEach(c=>{
+  const el=document.createElement('div'); el.className='card';
+  el.innerHTML='<div class="task">'+c.task+'</div><span class="hint">tap to sort</span>'+
+    '<div class="owner"><span class="otag">'+(c.owner==='ai'?'AI':'HUMAN')+' \u00b7 '+c.tag.split(' \u00b7 ')[1]+'</span><span class="why">'+c.why+'</span></div>';
+  el.addEventListener('click',()=>{
+    if(el.classList.contains('flip'))return;
+    el.classList.add('flip',c.owner);
+    if(++flipped===MODULE.board.length)$('boardNote').classList.remove('hidden');
+  });
+  board.appendChild(el);
+});
+
+const tabs=$('tabs'), panels=$('panels'); const seen=new Set();
+MODULE.seats.forEach((s,i)=>{
+  const t=document.createElement('button'); t.className='tab'+(i===0?' active':''); t.dataset.k=s.key;
+  t.innerHTML='<span class="dot"></span>'+s.role.replace('You are the ','');
+  t.addEventListener('click',()=>activate(s.key));
+  tabs.appendChild(t);
+
+  const p=document.createElement('div'); p.className='panel'+(i===0?' active':''); p.dataset.k=s.key;
+  p.innerHTML='<div class="role">'+s.role+'</div><div class="seatname">'+s.name+'</div>'+
+    '<p class="read">'+s.read+'</p>'+
+    '<div class="resp good"><span class="lbl">'+s.carries.lbl+'</span><p>'+s.carries.text+'</p></div>'+
+    '<div class="resp info"><span class="lbl">'+s.keeps.lbl+'</span><p>'+s.keeps.text+'</p></div>'+
+    '<div class="untrained"><span class="lbl">When they haven\'t trained</span><p>'+s.untrained+'</p></div>'+
+    '<div class="takeaway">'+s.takeaway+'</div>'+
+    '<div class="takehome"><span class="lbl">Take this with you</span><h4>'+s.takeHome.title+'</h4><ul>'+s.takeHome.items.map(it=>'<li>'+it+'</li>').join('')+'</ul></div>';
+  panels.appendChild(p);
+});
+function activate(k){
+  seen.add(k);
+  [...tabs.children].forEach(t=>{t.classList.toggle('active',t.dataset.k===k); if(seen.has(t.dataset.k))t.classList.add('seen');});
+  [...panels.children].forEach(p=>p.classList.toggle('active',p.dataset.k===k));
+}
+const _seat=new URLSearchParams(location.search).get('seat');
+activate(MODULE.seats.some(s=>s.key===_seat)?_seat:MODULE.seats[0].key);
+
+$('dissectBtn').addEventListener('click',()=>{
+  MODULE.points.forEach(pt=>{const d=document.createElement('div');d.className='point';d.innerHTML='<p class="pl">'+pt.pl+'</p><p>'+pt.body+'</p>';$('points').appendChild(d);});
+  MODULE.refs.forEach(r=>{const li=document.createElement('li');li.textContent=r;$('refs').appendChild(li);});
+  $('dissect').classList.remove('hidden'); $('dissect').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('closeBtn').addEventListener('click',()=>{$('closeSec').classList.remove('hidden');$('closeSec').scrollIntoView({behavior:'smooth',block:'start'});});
+</script>
+</body>
+</html>
