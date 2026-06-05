@@ -9,7 +9,7 @@ const body = Hanken_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', 
 
 export const metadata: Metadata = {
   title: 'AI in the Exam Room',
-  description: 'A free, non-commercial curriculum on using medical AI safely — taught from every seat in the exam room.',
+  description: 'An educational initiative by John C. Ferguson, MD, FACS.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

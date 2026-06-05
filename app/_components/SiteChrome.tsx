@@ -45,7 +45,7 @@ export function SiteFooter() {
         <div className="max-w-md">
           <div className="display text-lg text-white mb-2">AI in the Exam Room</div>
           <p className="text-sm text-slate-500 leading-relaxed">
-            A free, non-commercial educational initiative by John C. Ferguson, MD, FACS. No subscriptions, no upsells, nothing sold.
+            An educational initiative by John C. Ferguson, MD, FACS.
           </p>
         </div>
         <div className="flex gap-6 text-sm text-slate-400">

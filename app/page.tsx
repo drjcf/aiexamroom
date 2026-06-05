@@ -13,7 +13,7 @@ export default function Home() {
     <main>
       {/* Hero */}
       <section className="mx-auto max-w-5xl px-6 pt-24 pb-4">
-        <p className="eyebrow rise d1">Free &middot; non-commercial</p>
+ 
         <h1 className="display text-[3rem] leading-[1.02] md:text-[5rem] text-white mt-5 rise d2">
           What AI can&rsquo;t see<br />in the exam room.
         </h1>

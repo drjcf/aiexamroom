@@ -12,12 +12,12 @@ export default function About() {
           It is confident, often useful, and blind to everything it cannot sense.
         </p>
         <p>
-          This is a free, non-commercial curriculum on using medical AI well, taught from every seat in the
-          room. There are no subscriptions, no upsells, and nothing is sold. Reading is open to everyone;
+          This is an educational initiative on using medical AI well, taught from every seat in the
+          room. There are no subscriptions. Reading is open to everyone;
           an account is needed only to save progress or earn a certificate of completion.
         </p>
         <p className="text-slate-500">
-          A free, non-commercial educational initiative by John C. Ferguson, MD, FACS.
+          An educational initiative by John C. Ferguson, MD, FACS.
         </p>
       </div>
     </main>
