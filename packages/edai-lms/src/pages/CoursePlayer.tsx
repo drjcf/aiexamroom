@@ -57,6 +57,11 @@ export default function CoursePlayer({ courseId }: CoursePlayerProps) {
 
   const activeLesson = lessons[activeLessonIndex] ?? null;
 
+  // Course completion: true once the enrollment is complete (or 100% of lessons done).
+  const courseComplete =
+    enrollment?.status === 'completed' ||
+    (enrollment?.progress?.percentComplete ?? 0) >= 100;
+
   // Load course data
   useEffect(() => {
     if (!user || !courseId) return;
@@ -321,6 +326,29 @@ export default function CoursePlayer({ courseId }: CoursePlayerProps) {
               ? 'max-w-none p-4'
               : 'max-w-3xl mx-auto p-8'
           }`}>
+            {/* Course completion: take-home resources entry point */}
+            {courseComplete && (
+              <div className="glass rounded-xl p-5 mb-6 border-l-4" style={{ borderLeftColor: 'var(--brand-teal)' }}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Check size={18} className="text-emerald-400" />
+                  <h2 className="text-lg font-semibold text-white">You&rsquo;ve completed {course.title}</h2>
+                </div>
+                <p className="text-sm text-slate-400 mb-4">Take the patient and clinician materials with you.</p>
+                <div className="flex flex-wrap gap-3">
+                  {/* Static file in public/, not an app route, so a plain anchor (not next/link). */}
+                  <a href="/resources.html" className="btn-primary">Get your take-home resources &rarr;</a>
+                  {course.settings?.certificateEnabled && (
+                    <Link
+                      href={`${routeBase}/certificates`}
+                      className="px-4 py-2 rounded-lg bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      View certificate
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Lesson Header */}
             <div className="mb-6">
               <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">

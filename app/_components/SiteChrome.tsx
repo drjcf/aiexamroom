@@ -5,6 +5,7 @@ const NAV = [
   { href: '/caregivers', label: 'Caregivers' },
   { href: '/physicians', label: 'Physicians' },
   { href: '/nurses', label: 'Nurses' },
+  { href: '/resources.html', label: 'Resources', external: true }, // static file, not an app route
   { href: '/about', label: 'About' },
 ];
 
@@ -26,9 +27,10 @@ export function SiteHeader() {
           <span className="display text-[1.05rem] text-white" style={{ letterSpacing: '-0.01em' }}>AI in the Exam Room</span>
         </Link>
         <nav className="flex items-center gap-6 text-[0.9rem] text-slate-400">
-          {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className="hidden sm:inline hover:text-white transition-colors">{n.label}</Link>
-          ))}
+          {NAV.map((n) => n.external
+            ? <a   key={n.href} href={n.href} className="hidden sm:inline hover:text-white transition-colors">{n.label}</a>
+            : <Link key={n.href} href={n.href} className="hidden sm:inline hover:text-white transition-colors">{n.label}</Link>
+          )}
           <Link href="/signin" className="hover:text-white transition-colors">Sign in</Link>
         </nav>
       </div>
@@ -49,6 +51,7 @@ export function SiteFooter() {
         <div className="flex gap-6 text-sm text-slate-400">
           <Link href="/about" className="hover:text-white">About</Link>
           <Link href="/learn/courses" className="hover:text-white">Courses</Link>
+          <Link href="/resources.html">Resources</Link>
           <Link href="/learn/certificates" className="hover:text-white">Verify a certificate</Link>
         </div>
       </div>
