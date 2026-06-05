@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M10 · The Legal and Ethical Ground — AI in the Exam Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#070b14; --line:rgba(255,255,255,.10);
+    --teal:#1ABC9C; --teal-d:#16A085; --blue:#2E78C7; --green:#34d39a; --red:#f87171; --amber:#E6a23e; --violet:#c4a6ec;
+    --muted:#8a99ad;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--ink);color:#c5d0de;font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px),radial-gradient(120% 80% at 50% -10%,rgba(22,160,133,.12),transparent 60%),radial-gradient(90% 60% at 85% 0%,rgba(46,120,199,.08),transparent 55%);
+    background-size:22px 22px,100% 100%,100% 100%}
+  .wrap{max-width:860px;margin:0 auto;padding:0 22px}
+  .display{font-family:var(--display);font-weight:500;letter-spacing:-.02em;line-height:1.04}
+  .eyebrow{font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--teal);font-weight:600}
+  .mono{font-family:var(--mono)} .muted{color:var(--muted)}
+
+  header{border-bottom:1px solid var(--line);background:rgba(7,11,20,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+  .hbar{display:flex;align-items:center;gap:10px;height:58px}
+  .hbar .name{font-family:var(--display);color:#fff;font-size:1.02rem}
+  .hbar .tag{margin-left:auto;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+
+  .hero{padding:74px 0 24px}
+  .hero .num{font-family:var(--mono);color:var(--teal);font-size:.8rem;letter-spacing:.1em}
+  .hero h1{font-size:clamp(2.4rem,7vw,4rem);color:#fff;margin:12px 0 0}
+  .hero p{font-size:1.16rem;color:#cdd8e6;margin:20px 0 0}
+  svg.ecg{display:block;width:100%;height:56px;margin:26px 0 0}
+  .ecg path{fill:none;stroke:var(--teal);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 2.6s cubic-bezier(.6,.1,.2,1) .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  section.step{padding:30px 0;border-top:1px solid var(--line)}
+  .klabel{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .kdot{width:9px;height:9px;border-radius:50%;background:var(--teal)}
+  .h2{font-family:var(--display);font-size:clamp(1.55rem,4.5vw,2.2rem);color:#fff;margin:6px 0 8px}
+  .lead{color:#c5d0de;max-width:42em} .lead b{color:#fff}
+
+  .embedded .hero{padding:16px 0 10px}
+  .embedded .hero .num{display:none}
+  .embedded .hero h1{font-size:clamp(1.6rem,5vw,2.4rem)}
+  .embedded .hero p{font-size:1.02rem;margin-top:12px}
+  .embedded svg.ecg{height:38px;margin-top:14px}
+
+  .standoff{margin-top:26px;border-left:3px solid var(--amber);background:rgba(230,162,62,.08);border-radius:0 12px 12px 0;padding:18px 20px}
+  .standoff .q{font-family:var(--display);font-size:1.35rem;color:#fff;line-height:1.2;margin:0}
+  .standoff .who{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+
+  .untrained{margin-top:16px;border:1px dashed var(--line);border-radius:10px;padding:12px 15px;background:rgba(46,120,199,.05)}
+  .untrained .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  .untrained p{margin:.25rem 0 0;color:#cdd8e6;font-size:.93rem}
+
+  .takeaway{margin-top:18px;border-left:3px solid var(--teal);padding:4px 0 4px 16px;color:#fff;font-family:var(--display);font-size:1.18rem;line-height:1.3}
+
+  .takehome{margin-top:20px;border:1px solid var(--teal);border-radius:12px;padding:16px 18px;background:rgba(22,160,133,.07)}
+  .takehome .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700}
+  .takehome h4{font-family:var(--display);color:#fff;margin:.3rem 0 .5rem;font-size:1.12rem}
+  .takehome ul{margin:.3rem 0 0;padding-left:1.1rem} .takehome li{margin:.3rem 0;color:#e3ebf5}
+
+  .point{border-top:1px solid var(--line);padding:18px 0}
+  .point .pl{font-family:var(--display);font-size:1.2rem;color:#fff;margin:0 0 4px}
+  .point p{margin:0;color:#cdd8e6}
+  .thread{margin-top:16px;border-left:3px solid var(--teal);background:rgba(22,160,133,.07);border-radius:0 10px 10px 0;padding:13px 16px}
+  .thread.acct{border-left-color:var(--blue);background:rgba(46,120,199,.06)}
+  .thread .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  .thread.acct .lbl{color:var(--blue)} .thread.eq .lbl{color:var(--teal)}
+  .thread p{margin:.3rem 0 0;color:#e3ebf5}
+  .frame{margin-top:16px;border-left:3px solid var(--violet);background:rgba(196,166,236,.06);border-radius:0 10px 10px 0;padding:13px 16px}
+  .frame .lbl{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--violet);font-weight:700}
+  .frame p{margin:.3rem 0 0;color:#e3ebf5}
+
+  .refs{margin-top:22px;font-size:.86rem;color:var(--muted)} .refs li{margin:.3rem 0}
+  .close{padding:40px 0 10px;border-top:1px solid var(--line)}
+  .close blockquote{font-family:var(--display);font-size:clamp(1.6rem,4.5vw,2.5rem);color:#fff;margin:0;line-height:1.12}
+  .close p{color:#aebccd;max-width:40em;margin-top:18px}
+  .hidden{display:none}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ecg path{stroke-dashoffset:0}}
+  footer{padding:34px 0 60px;color:var(--muted);font-size:.84rem}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><polyline points="1,12 7,12 10,5 14,19 17,12 23,12" fill="none" stroke="#1ABC9C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+  <span class="name">AI in the Exam Room</span>
+  <span class="tag">Provider Module 10</span>
+</div></header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="num">Module 10 · The legal and ethical ground</div>
+    <h1 class="display">You sign the chart. The machine signs nothing. This is the ground that asymmetry leaves you standing on.</h1>
+    <p>Two kinds of AI, two kinds of governance, and one accountable human at the point of care. What the law requires of you now, what ethics asks beyond the law, and how to govern a tool that can be fluent and wrong at the same time.</p>
+    <svg class="ecg" viewBox="0 0 1280 80" preserveAspectRatio="none" aria-hidden="true"><path id="ecgp" pathLength="100" d=""/></svg>
+  </div>
+
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">Before you start · read this once</span></div>
+    <div class="thread acct"><span class="lbl">Not legal advice</span><p>This module is educational. The law here is jurisdiction-specific and moving fast; the dates below are current as of mid-2026 and several are in active flux. Verify the current rules, and your own malpractice and liability coverage, with counsel and your carrier before relying on any of it.</p></div>
+  </section>
+
+  <!-- 1. the distinction -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The first distinction · what kind of AI is this</span></div>
+    <div class="h2 display">Two kinds of AI. Two kinds of governance.</div>
+    <p class="lead">Most confusion about AI law and ethics comes from collapsing two different things into one word. Before anything else, decide which one is in front of you, because nearly every duty below lands harder on the second.</p>
+    <div class="thread eq"><span class="lbl">Healthcare AI · population level</span><p>Scheduling, coding, documentation drafting, cohort analytics, prior-authorization triage. Errors are diffuse, statistical, and usually recoverable. It can tolerate deploy-and-monitor, so governance can be largely retrospective.</p></div>
+    <div class="thread acct"><span class="lbl">Medical AI · the individual encounter</span><p>Output that bears on one patient's diagnosis, treatment, or decision. Tolerance for added error is effectively zero. The right posture is prospective: validation and credentialing gates cleared before deployment, not after harm.</p></div>
+    <div class="frame"><span class="lbl">The framework · watch the drift</span><p>A tool that drafts your note today and suggests a differential tomorrow has crossed from Healthcare AI into Medical AI, often without crossing any regulatory line. The clinician inherits that gap.</p></div>
+  </section>
+
+  <!-- 2. the legal ground -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The legal ground · what the law requires now</span></div>
+    <div class="h2 display">The law still runs through you.</div>
+    <p class="lead">No jurisdiction has moved ultimate clinical accountability onto an algorithm. You remain the accountable human, and the law is now scrutinizing not just your decision but how you used the tool.</p>
+
+    <div class="point"><p class="pl">Know the tool's regulatory status.</p><p>In the US the FDA regulates AI-enabled device functions, and its 2025 guidance lets vendors pre-clear specified model updates without a new submission. The trap: most conversational and generative tools in clinics are not cleared devices at all. They enter as non-device decision support or general software, with no premarket review for any clinical task. "FDA cleared" for one indication does not cover off-label use, and "not a device" does not mean safe.</p></div>
+
+    <div class="point"><p class="pl">The standard of care is still yours, and so is the liability.</p><p>The test remains the reasonable physician of your specialty. Following an AI does not relieve that duty; rely on it and you can still be liable if the action falls below standard. What is new is that the analysis now weighs whether use was on or off label, the stakes, and whether you documented your reasoning. This is the Cosigner Problem: you are positioned as the liability-bearing reviewer of a recommendation you did not generate and cannot fully inspect. The law treats cosigning as deciding.</p></div>
+
+    <div class="point"><p class="pl">Disclosure law is arriving unevenly.</p><p>Texas's TRAIGA, effective January 1, 2026, requires healthcare providers to disclose AI use in care. Utah requires disclosing generative AI on request, Colorado's act was scaled back in 2026, several states added chatbot rules, and one moved to ban AI therapy bots. No federal preemption passed. Default to disclosing when AI touches a decision, and document it.</p></div>
+
+    <div class="point"><p class="pl">Privacy is easy to breach by reflex.</p><p>Protected health information fed to a vendor tool needs a Business Associate Agreement; pasting it into a consumer chatbot is a breach risk, not a shortcut. Confirm where the data goes, and who may train on it, before the first encounter.</p></div>
+
+    <div class="thread acct"><span class="lbl">Thread · the Accountability Asymmetry, now in your policy</span><p>You carry malpractice insurance and a revocable license. The AI company carries disclaimers. And as of January 1, 2026, ISO endorsements CG 40 47 and CG 40 48 let your carrier exclude generative-AI harms from liability coverage entirely, with strong uptake and similar language spreading into errors-and-omissions and directors-and-officers lines. Read your renewal for "artificial intelligence," "generative," and "algorithm." The coverage you assume may be written out from under you.</p></div>
+  </section>
+
+  <!-- 3. the ethical ground -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The ethical ground · what ethics asks beyond the law</span></div>
+    <div class="h2 display">Four old duties, and where each one bends.</div>
+    <p class="lead">The law sets the floor. The four principles set the rest, and clinical AI bends each in a specific place.</p>
+
+    <div class="point"><p class="pl">Autonomy: the patient's interest in knowing.</p><p>Where AI materially shapes a diagnosis or treatment, the case for disclosure and shared decision-making grows with the stakes and the opacity. A recommendation you cannot interpret is one you cannot consent a patient to, which is why explainability is the enabling condition, not a nicety.</p></div>
+
+    <div class="standoff">
+      <div class="who">Beneficence · the evidence under the boundary</div>
+      <p class="q">Ceiling on the licensing exam. Far below passing on the specialty boards.</p>
+    </div>
+    <p class="lead" style="margin-top:18px">Systems that score at the ceiling on licensing-style exams drop sharply on specialty board-level questions in published benchmarks, often well below a passing mark. The failure is reasoning, not retrieval: having the source material is not the same as reasoning through it. Call the limit the <b>Cognitive Altitude Boundary</b>, the level of synthesis above which current systems become unreliable. Set deployment standards at board-level competence under real conditions, not at licensing-exam performance. And design around automation bias and the sensing gap, since the machine cannot see the color, the breathing, or the fear that never reaches the text.</p>
+
+    <div class="thread eq"><span class="lbl">Thread · justice and equity</span><p>AI inherits the inequities of its training data and underperforms on populations it was not built on. A tool validated in a well-resourced center can transfer harm to the patients least able to absorb it. Ask who it was trained and validated on, monitor for differential performance, and never assume a system built for one setting is safe in another.</p></div>
+
+    <div class="frame"><span class="lbl">The framework · Intelligent Humility</span><p>The counterweight to confident error is a system built to say "I do not know," to communicate calibrated uncertainty, and to decline rather than confabulate outside its validated knowledge. A system that never expresses uncertainty is not more capable; it is less trustworthy, because it has removed the signal you need to calibrate reliance.</p></div>
+
+    <div class="untrained"><span class="lbl">The human trap</span><p>Two tendencies undermine all of the above. The Effort Asymmetry is the pull toward the easiest survivable path: accepting the output is faster than interrogating it, and that gradient compounds across a clinic. And a clinician who reviews without truly deciding has taken the liability of authorship without doing the work of authorship. Neither is fixed by willpower; both are fixed by design and documentation.</p></div>
+  </section>
+
+  <!-- 4. practical governance -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The practical layer · how to govern it</span></div>
+    <div class="h2 display">Govern it like you mean it.</div>
+    <p class="lead">Principles become safe only as practice. Three checklists and one control rule.</p>
+
+    <div class="takehome"><span class="lbl">Take this with you</span><h4>Before adoption</h4><ul>
+      <li>Get the tool's regulatory status and exact intended use in writing.</li>
+      <li>Ask who it was trained and validated on, and for evidence at the relevant clinical altitude.</li>
+      <li>Be wary of any tool whose developer will not disclose how it works.</li>
+      <li>Confirm the data flow and the governing agreement.</li>
+      <li>Check your liability coverage for a new generative-AI exclusion.</li>
+    </ul></div>
+
+    <div class="takehome"><span class="lbl">Take this with you</span><h4>At the point of care</h4><ul>
+      <li>Apply the standard of care independently; treat AI as confirmatory, not the decision.</li>
+      <li>Be most deliberate in high-stakes and off-label use.</li>
+      <li>Watch for automation bias in yourself.</li>
+      <li>Document what the tool contributed, how your assessment compared, and any departure.</li>
+      <li>Disclose AI involvement to the patient when it touches the decision.</li>
+    </ul></div>
+
+    <div class="takehome"><span class="lbl">Take this with you</span><h4>At the organization</h4><ul>
+      <li>Stand up a governance function; do not leave adoption to individuals.</li>
+      <li>Keep an inventory of deployed tools and their intended uses.</li>
+      <li>Define validation, disclosure, consent, training, and audit duties.</li>
+      <li>Build monitoring for differential performance and a real incident path.</li>
+    </ul></div>
+
+    <div class="frame"><span class="lbl">The framework · Execution-Bound Governance</span><p>For higher-stakes deployment, build the control plane so no consequential action proceeds without a valid Decision Record, and make it fail-closed: the default without a valid record is to stop, not proceed. A Decision Record names the consequence owner, ties to a revocable credential, and produces the artifact an independent reviewer can audit later. A failure becomes a documented asset, not an untraceable event.</p></div>
+  </section>
+
+  <!-- 5. open questions -->
+  <section class="step">
+    <div class="klabel"><span class="kdot"></span><span class="eyebrow">The open questions · where the law still lags</span></div>
+    <div class="h2 display">What still has no answer.</div>
+    <p class="lead">These are the gaps governance proposals should target, because the law has not closed them.</p>
+
+    <div class="point"><p class="pl">Who is liable when the developer is in the loop?</p><p>Allocation among physician, health system, and developer is unsettled, and currently defaults onto the physician.</p></div>
+    <div class="point"><p class="pl">Who can revoke an autonomous system's authority?</p><p>Proposals to license autonomous clinical AI run ahead of any framework for withdrawing that authority for cause.</p></div>
+    <div class="point"><p class="pl">Who insures the harm the technology creates?</p><p>The new exclusions threaten to leave clinicians and developers uninsured for exactly the harms AI introduces.</p></div>
+    <div class="point"><p class="pl">Whose disclosure rule applies?</p><p>A multi-state practice cannot satisfy the patchwork by intuition, and global harmonization barely exists.</p></div>
+
+    <div class="thread acct"><span class="lbl">The throughline</span><p>Every one of these is the Accountability Asymmetry. Until consequence ownership, credential revocability, and independent adjudication attach to the systems shaping the decision, the human at the bedside keeps absorbing the risk of decisions they did not make.</p></div>
+
+    <span class="eyebrow" style="display:block;margin-top:24px">References</span>
+    <ul class="refs">
+      <li>FDA. Predetermined Change Control Plans for AI-enabled device software functions; Good Machine Learning Practice guiding principles (2025).</li>
+      <li>EU AI Act, Regulation (EU) 2024/1689, with 2025-2026 Digital Omnibus timeline proposals (status in flux).</li>
+      <li>Texas Responsible AI Governance Act (HB 149), effective Jan 1, 2026; Colorado SB 24-205 and its 2026 replacement; Utah AI Policy Act; state chatbot laws.</li>
+      <li>Price WN, et al. Liability for use of AI in medicine (2024); Milbank Quarterly (2024); Medical Economics, the new malpractice frontier (2026); Dickson v. Dexcom (2024).</li>
+      <li>AMA. Principles for Augmented Intelligence Development, Deployment and Use; 2025 explainable-AI policy.</li>
+      <li>ISO / Verisk endorsements CG 40 47, CG 40 48, CG 35 08, effective Jan 1, 2026.</li>
+      <li>Subspecialty benchmark performance of medical AI: Jagarapu et al. (medRxiv, 2025); Zuo et al., MedXpertQA (arXiv, 2025).</li>
+    </ul>
+  </section>
+
+  <section class="step">
+    <div class="close" style="padding-top:0;border-top:0">
+      <blockquote class="display">The instrument can be brilliant and blind at once. You are the one who can tell the difference, and the only one the law, the patient, and the consequence can find.</blockquote>
+      <p>Know which kind of AI you are holding. Keep the judgment, the senses, the decision, and the name on the chart. Govern the rest like it can be confidently wrong, because it can. Optimize the clinician. You cannot replace them.</p>
+    </div>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">Module 10 of the AI in the Exam Room curriculum. An educational initiative by John C. Ferguson, MD, FACS. For teaching only, not medical advice.</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+(function(){const beat='0,40 70,40 84,40 92,30 100,40 150,40 162,40 170,8 182,72 192,40 232,40 250,40 262,33 274,40 320,40';
+  let pts=[0,320,640,960].map(dx=>beat.split(' ').map(p=>{const[a,b]=p.split(',');return((+a)+dx)+','+b;}).join(' ')).join(' ');
+  $('ecgp').setAttribute('d','M'+pts.replace(/ /g,' L'));})();
+if(window.self!==window.top||new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
+</script>
+
+<!-- resources entry point (injected) -->
+<div data-resources-link style="max-width:860px;margin:0 auto;padding:14px 22px 40px;text-align:center">
+  <a href="/resources.html" target="_top" style="display:inline-block;border:1px solid rgba(255,255,255,.15);border-radius:.6rem;padding:.6rem 1.15rem;color:#1ABC9C;text-decoration:none;font-family:'Hanken Grotesk',system-ui,sans-serif;font-weight:600">
+    Take-home resources &rarr;
+  </a>
+</div>
+</body>
+</html>
