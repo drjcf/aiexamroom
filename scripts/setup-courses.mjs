@@ -4,11 +4,15 @@
  *   - one `lms_courses` doc per seat:  course_patient | course_caregiver | course_physician | course_nurse
  *   - one `lms_lessons` doc per module per seat, each an iframe -> that module on ?seat=<seat>
  *
- * Every track is the same nine cross-seat modules opened on a different ?seat=.
+ * Every track is the same cross-seat modules opened on a different ?seat=.
  * Module 9 (the proper-use practicum) reads ?seat= and renders that seat's edition.
  *
  * To add a module: append to MODULES below (file + per-seat description). Lesson ids,
  * lessonOrder, and estimatedHours are all derived from the array.
+ *
+ * A module may set an optional `seats: [...]` allowlist to restrict it to specific
+ * tracks (e.g. a provider-only governance module). Omit `seats` to include it in all
+ * four tracks (the default, preserving the original cross-seat behavior).
  *
  * Re-runnable: merges, and preserves enrollmentCount / createdAt / publishedAt on
  * existing docs (a re-run never resets live counters or original timestamps).
@@ -17,7 +21,7 @@
  *   # all four tracks:
  *   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json node scripts/setup-courses.mjs
  *   # one track only:
- *   SEAT=patient   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json node scripts/setup-courses.mjs
+ *   SEAT=physician   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccount.json node scripts/setup-courses.mjs
  *   # absolute encounter origin (default is root-relative / same-origin):
  *   ENCOUNTER_ORIGIN=https://aiintheexamroom.com node scripts/setup-courses.mjs
  *
@@ -48,18 +52,19 @@ const SEATS = {
     title: 'For Physicians',
     shortDescription: 'Where AI is uplift, where judgment stays primary.',
     description:
-      `The same encounters the other tracks teach, from the physician's chair: calibrating trust to the task, keeping a real (not ceremonial) human in the loop, modeling intelligent humility, and coaching the patient who arrives already using AI.`,
+      `The same encounters the other tracks teach, from the physician's chair: calibrating trust to the task, keeping a real (not ceremonial) human in the loop, modeling intelligent humility, and coaching the patient who arrives already using AI. Closes with the legal and ethical frame around clinical AI use.`,
   },
   nurse: {
     title: 'For Nurses',
     shortDescription: 'Catching confident-wrong at the point of care.',
     description:
-      `The same encounters the other tracks teach, from the nurse's chair: scope-appropriate use, catching confident-wrong before it becomes an order or a belief, re-triaging from the symptom, and teaching patients and families proper use.`,
+      `The same encounters the other tracks teach, from the nurse's chair: scope-appropriate use, catching confident-wrong before it becomes an order or a belief, re-triaging from the symptom, and teaching patients and families proper use. Closes with the legal and ethical frame around clinical AI use.`,
   },
 };
 
 // ---- The modules (one source of truth) -----------------------------------
 // desc: a per-seat one-line description used as that track's lesson blurb.
+// seats (optional): allowlist of tracks a module belongs to. Omit for all four.
 const MODULES = [
   {
     n: 1, file: 'm1.html', title: 'Module 1 \u00b7 The Prepared Patient', est: 15,
@@ -142,6 +147,14 @@ const MODULES = [
       nurse: `Your proper-use playbook: scope-appropriate use, catch confident-wrong at the point of care, re-triage from the symptom, and teach families proper use.`,
     },
   },
+  {
+    n: 10, file: 'm10.html', title: 'Module 10 \u00b7 Law, Liability, and Ethics', est: 20,
+    seats: ['physician', 'nurse'],
+    desc: {
+      physician: `The legal and ethical frame around everything the other modules practiced: where the standard of care now examines how you use AI, why the consequence sits with your license and not the vendor's disclaimer, and the disclosure, documentation, and human oversight that keep you the decision-maker.`,
+      nurse: `The legal and ethical frame around point-of-care AI use: where your scope and your documentation matter, why a confident wrong answer becomes your liability the moment it turns into an order or a teach, and the disclosure and escalation that keep a human accountable.`,
+    },
+  },
 ];
 
 // --------------------------------------------------------------------------
@@ -151,6 +164,8 @@ const now = FieldValue.serverTimestamp();
 
 const courseId = (seat) => `course_${seat}`;
 const lessonId = (seat, n) => `${courseId(seat)}_l${String(n).padStart(2, '0')}`;
+// Modules that belong to a given seat: an explicit allowlist, or all four by default.
+const modulesFor = (seat) => MODULES.filter((M) => !M.seats || M.seats.includes(seat));
 
 function lessonDoc(seat, M) {
   return {
@@ -175,8 +190,9 @@ function lessonDoc(seat, M) {
 
 function courseBase(seat) {
   const c = SEATS[seat];
-  const lessonOrder = MODULES.map((M) => lessonId(seat, M.n));
-  const totalMin = MODULES.reduce((s, M) => s + M.est, 0);
+  const mods = modulesFor(seat);
+  const lessonOrder = mods.map((M) => lessonId(seat, M.n));
+  const totalMin = mods.reduce((s, M) => s + M.est, 0);
   return {
     id: courseId(seat),
     title: c.title,
@@ -205,8 +221,9 @@ function courseBase(seat) {
 }
 
 async function buildSeat(seat) {
+  const mods = modulesFor(seat);
   // Lessons first, so the course's lessonOrder always points at real docs.
-  for (const M of MODULES) {
+  for (const M of mods) {
     const ref = db.collection('lms_lessons').doc(lessonId(seat, M.n));
     const snap = await ref.get();
     await ref.set(
@@ -227,7 +244,7 @@ async function buildSeat(seat) {
     },
     { merge: true },
   );
-  console.log(`lms_courses/${courseId(seat)}  ${snap.exists ? '(updated)' : '(created)'}  status=published  lessons=${MODULES.length}\n`);
+  console.log(`lms_courses/${courseId(seat)}  ${snap.exists ? '(updated)' : '(created)'}  status=published  lessons=${mods.length}\n`);
 }
 
 async function run() {
@@ -240,7 +257,7 @@ async function run() {
     console.log(`=== ${courseId(seat)} ===`);
     await buildSeat(seat);
   }
-  console.log(`Done. Built ${seats.length} track(s): ${seats.map(courseId).join(', ')}, ${MODULES.length} modules each.`);
+  console.log(`Done. Built ${seats.length} track(s): ${seats.map(courseId).join(', ')}.`);
 }
 
 run().catch((e) => { console.error(e); process.exit(1); });

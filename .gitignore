@@ -7,3 +7,25 @@ serviceAccount.json
 *serviceaccount*.json
 *-key.json
 .env*
+
+# --- migration hardening ---
+node_modules/
+.next/
+.firebase/
+dist/
+build/
+.turbo/
+.gradle/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*serviceAccount*.json
+serviceAccountKey.json
+*-key.json
+*ingest-key.json
+edaihub-*.json
+application_default_credentials.json
+
